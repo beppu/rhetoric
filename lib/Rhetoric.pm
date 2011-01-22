@@ -18,6 +18,17 @@ our %CONFIG = (
   'storage.file.path' => '/tmp/rhetoric',
 );
 
+# XXX - divorce from Continuity
+# TODO - Make squatting a good citizen in the Plack universe
+sub continue {                                                                                                                                                                                       
+  my $app = shift;
+  $app->next::method(
+    docroot => "./share/theme/brownstone", 
+    staticp => sub { $_[0]->url =~ m/\.(jpg|jpeg|gif|png|css|ico|js|swf)$/ },
+    @_
+  );
+}
+
 # shortcuts for File::Path::Tiny
 # TODO - move to Rhetoric::Storage::File
 *mk = *File::Path::Tiny::mk;
@@ -200,16 +211,16 @@ sub storage {
 #_____________________________________________________________________________
 package Rhetoric::Controllers;
 use Squatting ':controllers';
+use Method::Signatures::Simple;
 
 our @C = (
 
   C(
     Home => [ '/', '/page/(\d+)' ],
-    get => sub {
-      my ($self, $page) = @_;
+    get => method($page) {
       my $storage = Rhetoric::storage();
-      my $posts   = $storage->posts();
-      'no worky yet';
+      my $posts   = $storage->posts($Rhetoric::CONFIG{posts_per_page});
+      $self->render('index');
     },
   ),
 
@@ -252,9 +263,26 @@ our @C = (
 #_____________________________________________________________________________
 package Rhetoric::Views;
 use Squatting ':views';
+use Method::Signatures::Simple;
 use Template;
 
+our $tt = Template->new({
+  INCLUDE_PATH => './share/theme/brownstone',
+  POST_CHOMP   => 1,
+});
+
 our @V = (
+  V(
+    'tt',
+    #layout => method($v, $content) {
+    #},
+    _ => method($v) {
+      my $file = "$self->{template}.html";
+      my $output;
+      $tt->process($file, $v, \$output);
+      $output;
+    },
+  )
 );
 
 1;
