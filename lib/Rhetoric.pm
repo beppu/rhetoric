@@ -2,22 +2,28 @@ package Rhetoric;
 use common::sense;
 use base 'Squatting';
 use aliased 'Squatting::H';
+
+# TODO - move to Rhetoric::Storage::File
 use IO::All;
 use File::Path::Tiny;
 use File::Find::Rule;
 use File::Basename;
+use Method::Signatures::Simple;
 
 # global config for our blogging app
 our %CONFIG = (
   theme               => 'default',
   storage             => 'File',  # or mysql or CouchDB or WHATEVER!!!
-  'storage-file-path' => '/tmp/rhetoric',
+  posts_per_page      => 4,
+  'storage.file.path' => '/tmp/rhetoric',
 );
 
 # shortcuts for File::Path::Tiny
+# TODO - move to Rhetoric::Storage::File
 *mk = *File::Path::Tiny::mk;
 
 # y m d h m s
+# TODO - move to Rhetoric::Helpers
 sub now {
   my @d = localtime;
   return (
@@ -31,26 +37,25 @@ sub now {
 }
 
 # make a url-friendly slug out of a post title
+# TODO - move to Rhetoric::Helpers
 sub slug {
   my $title = shift;
-  $title =~ s/\s+/-/g;
-  $title =~ s/\W//g;
+  $title =~ s/\W+/-/g;
   return $title;
 }
 
 # Return an object that handles the storage for blog data based on
 # what $CONFIG{storage} dictates.
 # XXX  - hard-coded File storage implementation
-# TODO - move this to its own module
+# TODO - move to Rhetoric::Storage::File
 sub storage {
 
   return H->new({
 
-    init => sub {
-      my $root = $CONFIG{'storage-file-path'};
-      mkdir "$root";
-      mkdir "$root/posts";
-      mkdir "$root/navigation";
+    init => method {
+      my $root = $CONFIG{'storage.file.path'};
+      mk("$root/posts");
+      mk("$root/navigation");
       # metadata
       io("$root/title")       < "A Rhetoric Powered Blog"          unless (-e "$root/title");
       io("$root/subtitle")    < "The Art of Persuasion"            unless (-e "$root/subtitle");
@@ -58,9 +63,8 @@ sub storage {
       return 1;
     },
 
-    metadata=> sub {
-      my ($self, $k, $v) = @_;
-      my $root = $CONFIG{'storage-file-path'};
+    meta => method($k, $v) {
+      my $root = $CONFIG{'storage.file.path'};
       if (defined($v)) {
         io("$root/$k") < $v;
       } else {
@@ -69,8 +73,8 @@ sub storage {
       return $v;
     },
 
-    new_post => sub {
-      my ($self, $post) = @_;
+    new_post => method($post) {
+      ref($post) eq 'HASH' && H->bless($post);
       my ($title, $body, $format, $schedule);
       $title = $post->title;
       $body  = $post->body;
@@ -81,7 +85,7 @@ sub storage {
       } else {
         ($Y, $M, $D, $h, $m, $s) = now();
       }
-      my $root = $CONFIG{'storage-file-path'};
+      my $root = $CONFIG{'storage.file.path'};
       my $post_path = sprintf("$root/posts/%d/%02d/%02d/%02d/%02d/%02d", $Y, $M, $D, $h, $m, $s);
       mk($post_path);
       io("$post_path/title")  < $title;
@@ -92,50 +96,101 @@ sub storage {
     },
 
     # fetch a post
-    post => sub {
-      my ($self, $y, $m, $slug) = @_;
-      my $root = $CONFIG{'storage-file-path'};
+    post => method($y, $m, $slug) {
+      my $root = $CONFIG{'storage.file.path'};
       my $partial_post_path = "$root/posts/$y/$m";
       my @files = File::Find::Rule
         ->file()
         ->name('slug')
         ->in($partial_post_path);
       my ($file) = grep { my $test_slug < io($_); $test_slug eq $slug } @files;
-      warn $file;
       if ($file) {
         my $post_path = dirname($file);
-        warn $post_path;
         my $title  < io("$post_path/title");
         my $body   < io("$post_path/body");
         my $format < io("$post_path/format");
         my @s = split('/', $post_path);
-        my $schedule = join('/', @s[-6 .. -1]);
+        my $posted_on = sprintf('%s-%s-%sT%s:%s:%s', @s[-6 .. -1]);
         return H->new({
-          title    => $title,
-          slug     => $slug,
-          body     => $body,
-          format   => $format,
-          schedule => $schedule,
+          title     => $title,
+          slug      => $slug,
+          body      => $body,
+          format    => $format,
+          posted_on => $posted_on,
         });
       } else {
         return undef;
       }
     },
 
-    recent_posts => sub {
+    # FIXME - This implementation is not efficient,
+    # FIXME - because it scans the entire post history every time.
+    posts => method($count, $after) {
+      my $root = $CONFIG{'storage.file.path'};
+      my @all_posts = reverse sort (
+        File::Find::Rule
+          ->file()
+          ->name('slug')
+          ->in("$root/posts")
+      );
+      $count = (@all_posts < $count) ? scalar(@all_posts) : $count;
+      my @posts = map {
+        my @d = (split('/', $_))[-7 .. -1]; # d for directory
+        my $slug < io($_);
+        my ($y, $m) = ($d[0], $d[1]);
+        $self->post($y, $m, $slug);
+      } @all_posts[0 .. ($count - 1)];
+    },
+
+    # TODO - figure out how I should store category information
+    categories => method {
       []
     },
 
-    category_posts => sub {
+    category_posts => method($category) {
       []
     },
 
-    category_list => sub {
+    #
+    archives => method {
+      my $root = $CONFIG{'storage.file.path'};
+      my $post_path = "$root/posts";
+      my @d = reverse sort (
+        File::Find::Rule
+          ->directory()
+          ->maxdepth(2)
+          ->in($post_path)
+      );
+      my @ad = grep { scalar(@$_) == 2 } map {
+        my $path = $_;
+        $path =~ s/^$post_path\///;
+        [ split('/', $path) ]
+      } @d;
+      @ad;
+    },
+
+    archive_posts => method($y, $m) {
+      my $root = $CONFIG{'storage.file.path'};
+      my @all_posts = reverse sort (
+        File::Find::Rule
+          ->file()
+          ->name('slug')
+          ->in("$root/posts/$y/$m")
+      );
+      my @posts = map {
+        my @d = (split('/', $_))[-7 .. -1]; # d for directory
+        my $slug < io($_);
+        my ($y, $m) = ($d[0], $d[1]);
+        $self->post($y, $m, $slug);
+      } @all_posts;
+    },
+
+    comments => method($post) {
       []
     },
 
-    comments => sub {
-      []
+    new_comment => method($comment) {
+      1;
     },
 
   });
@@ -153,6 +208,7 @@ our @C = (
     get => sub {
       my ($self, $page) = @_;
       my $storage = Rhetoric::storage();
+      my $posts   = $storage->posts();
       'no worky yet';
     },
   ),
