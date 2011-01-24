@@ -274,8 +274,12 @@ our $tt = Template->new({
 our @V = (
   V(
     'tt',
-    #layout => method($v, $content) {
-    #},
+    layout => method($v, $content) {
+      my $output;
+      $v->{content} = $content;
+      $tt->process('layout.html', $v, \$output);
+      $output;
+    },
     _ => method($v) {
       my $file = "$self->{template}.html";
       my $output;
