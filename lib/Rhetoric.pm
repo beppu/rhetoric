@@ -29,6 +29,17 @@ sub continue {
   );
 }
 
+# service() is run on every request (just like in Camping).
+sub service {
+  my ($class, $c, @args) = @_;
+  my $v = $c->v;
+  my $s = $v->{storage} = storage();
+  $v->{title}       = $s->meta('title');
+  $v->{subtitle}    = $s->meta('subtitle');
+  $v->{description} = $s->meta('description');
+  $class->next::method($c, @args);
+}
+
 # shortcuts for File::Path::Tiny
 # TODO - move to Rhetoric::Storage::File
 *mk = *File::Path::Tiny::mk;
@@ -212,6 +223,7 @@ sub storage {
 package Rhetoric::Controllers;
 use Squatting ':controllers';
 use Method::Signatures::Simple;
+use aliased 'Squatting::H';
 
 our @C = (
 
@@ -220,14 +232,23 @@ our @C = (
     get => method($page) {
       my $storage = Rhetoric::storage();
       my $posts   = $storage->posts($Rhetoric::CONFIG{posts_per_page});
+      my $v = H->bless($self->v);
+      $v->title($storage->meta('title'));
+      $v->subtitle($storage->meta('subtitle'));
+      $v->description($storage->meta('description'));
+      $v->posts([ $storage->posts(10) ]);
       $self->render('index');
     },
   ),
 
   C(
-    Post => [ '/(\d+)/(\d+)/(\w+)' ],
+    Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
     get => sub {
       my ($self, $year, $month, $title_slug) = @_;
+      my $v = $self->v;
+      my $storage = Rhetoric::storage();
+      $v->{post} = $storage->post($year, $month, $title_slug);
+      $self->render('post');
     },
   ),
 
@@ -246,7 +267,7 @@ our @C = (
   ),
 
   C(
-    Category => [ '/category/(\w+)' ],
+    Category => [ '/category/([\w-]+)' ],
     get => sub {
       my ($self, $category) = @_;
     }
@@ -265,6 +286,7 @@ package Rhetoric::Views;
 use Squatting ':views';
 use Method::Signatures::Simple;
 use Template;
+use Data::Dump 'pp';
 
 our $tt = Template->new({
   INCLUDE_PATH => './share/theme/brownstone',
@@ -276,6 +298,7 @@ our @V = (
     'tt',
     layout => method($v, $content) {
       my $output;
+      $v->{R} = \&R;
       $v->{content} = $content;
       $tt->process('layout.html', $v, \$output);
       $output;
@@ -283,6 +306,7 @@ our @V = (
     _ => method($v) {
       my $file = "$self->{template}.html";
       my $output;
+      $v->{R} = \&R;
       $tt->process($file, $v, \$output);
       $output;
     },

@@ -15,8 +15,8 @@ Released   : 20100928
 <meta name="keywords" content="" />
 <meta name="description" content="" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>Brown Stone   by Free CSS Templates</title>
-<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+<title>[% title %]</title>
+<link href="/style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="wrapper">
@@ -28,8 +28,8 @@ Released   : 20100928
 
         <div id="sidebar">
           <div id="logo">
-            <h1><a href="#">Brown Stone </a></h1>
-            <p>Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a></p>
+            <h1><a href="[% R('Home') %]">[% title %]</a></h1>
+            <p><a href="[% R('Home') %]">[% subtitle %]</a></p>
           </div>
           <div id="menu">
             <ul>
@@ -54,8 +54,8 @@ Released   : 20100928
               <div style="clear: both;">&nbsp;</div>
             </li>
             <li>
-              <h2>Aliquam tempus</h2>
-              <p>Mauris vitae nisl nec metus placerat perdiet est. Phasellus dapibus semper consectetuer hendrerit.</p>
+              <h2>About</h2>
+              <p>[% description %]</p>
             </li>
             <li>
               <h2>Categories</h2>
