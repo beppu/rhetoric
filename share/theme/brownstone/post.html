@@ -1,0 +1,13 @@
+        <div id="content">
+          <div class="post">
+            <h2 class="title"><a href="[% R('Post', '2011', '01', post.slug) %]">[% post.title %]</a></h2>
+            <p class="meta"><span class="date">September 13, 2001</span><span class="posted">Posted by <a href="#">[% post.author || "beppu" %]</a></span></p>
+            <div style="clear: both;">&nbsp;</div>
+            <div class="entry">
+              [% post.body %]
+              <p class="links"><a href="[% R('Post', '2011', '01', post.slug) %]">Read More</a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="[% R('Post', '2011', '01', post.slug) %]#comments">Comments</a></p>
+            </div>
+          </div>
+          <div style="clear: both;">&nbsp;</div>
+          <h1 id="comments">Comments</h1>
+        </div>
