@@ -10,4 +10,21 @@
           </div>
           <div style="clear: both;">&nbsp;</div>
           <h1 id="comments">Comments</h1>
+          <div class="comment">
+          </div>
+          <div>
+            <form id="comment-form" method="post" action="[% R('Comment') %]">
+              <h3>Name</h3>
+              <input type="text" name="name" />
+              <h3>Email</h3>
+              <input type="text" name="name" />
+              <h3>URL</h3>
+              <input type="text" name="name" />
+              <h3>Comment</h3>
+              <textarea name="comment" rows="8" cols="40"></textarea>
+              <div>
+                <input type="submit" name="submit" value="Submit" />
+              </div>
+            </form>
+          </div>
         </div>

@@ -243,39 +243,42 @@ our @C = (
 
   C(
     Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
-    get => sub {
-      my ($self, $year, $month, $title_slug) = @_;
+    get => method($year, $month, $title_slug) {
       my $v = $self->v;
       my $storage = Rhetoric::storage();
       $v->{post} = $storage->post($year, $month, $title_slug);
       $self->render('post');
     },
+    post => method($year, $month, $title_slug) {
+      my $v = $self->v;
+      my $storage = Rhetoric::storage();
+      my $post = $v->{post} = $storage->post($year, $month, $title_slug);
+    }
   ),
 
   C(
     NewPost => [ '/post' ],
-    get => sub {
+    get => method {
     },
-    post => sub {
+    post => method {
     },
   ),
 
   C(
-    Comment => [ '/comment' ],
-    post => sub {
+    NewComment => [ '/comment' ],
+    post => method {
     }
   ),
 
   C(
     Category => [ '/category/([\w-]+)' ],
-    get => sub {
-      my ($self, $category) = @_;
+    get => method($category) {
     }
   ),
 
   C(
-    EverythingElse => [ '/(.*)' ],
-    get => sub {
+    X => [ '/(.*)' ],
+    get => method($path) {
     }
   ),
 
