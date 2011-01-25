@@ -15,4 +15,6 @@ install_script 'bin/rh';
 install_script 'bin/rh-init';
 install_script 'bin/rh-export';
 
+install_share 'share';
+
 WriteAll;
