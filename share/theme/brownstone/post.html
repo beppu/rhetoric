@@ -13,7 +13,10 @@
           <div class="comment">
           </div>
           <div>
-            <form id="comment-form" method="post" action="[% R('Comment') %]">
+            <form id="comment-form" method="post" action="[% R('NewComment') %]">
+              <input type="hidden" name="year"  value="[% post.year  %]" />
+              <input type="hidden" name="month" value="[% post.month %]" />
+              <input type="hidden" name="slug"  value="[% post.slug  %]" />
               <h3>Name</h3>
               <input type="text" name="name" />
               <h3>Email</h3>

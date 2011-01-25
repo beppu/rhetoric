@@ -232,11 +232,8 @@ our @C = (
     get => method($page) {
       my $storage = Rhetoric::storage();
       my $posts   = $storage->posts($Rhetoric::CONFIG{posts_per_page});
-      my $v = H->bless($self->v);
-      $v->title($storage->meta('title'));
-      $v->subtitle($storage->meta('subtitle'));
-      $v->description($storage->meta('description'));
-      $v->posts([ $storage->posts(10) ]);
+      my $v       = $self->v;
+      $v->{posts} = [ $storage->posts(10) ];
       $self->render('index');
     },
   ),
@@ -244,8 +241,8 @@ our @C = (
   C(
     Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
     get => method($year, $month, $title_slug) {
-      my $v = $self->v;
       my $storage = Rhetoric::storage();
+      my $v = $self->v;
       $v->{post} = $storage->post($year, $month, $title_slug);
       $self->render('post');
     },
@@ -259,6 +256,7 @@ our @C = (
   C(
     NewPost => [ '/post' ],
     get => method {
+      $self->render('new_post');
     },
     post => method {
     },
@@ -267,18 +265,44 @@ our @C = (
   C(
     NewComment => [ '/comment' ],
     post => method {
+      my $input   = $self->input;
+      my $year    = $input->{year};
+      my $month   = $input->{month};
+      my $slug    = $input->{slug};
+      my $name    = $input->{name};
+      my $email   = $input->{email};
+      my $comment = $input->{comment};
+      my $storage = Rhetoric::storage();
+      my $result  = $storage->new_comment($year, $month, $slug, {
+        name      => $name,
+        email     => $email,
+        comment   => $comment
+      });
+      if ($result->success) {
+        $self->redirect(R('Post', $year, $month, $slug));
+      } else {
+        # TODO - put errors in session
+        $self->redirect(R('Post', $year, $month, $slug));
+      }
     }
   ),
 
   C(
     Category => [ '/category/([\w-]+)' ],
     get => method($category) {
+      my $storage = Rhetoric::storage();
+      my $v = $self->v;
     }
   ),
 
   C(
     X => [ '/(.*)' ],
     get => method($path) {
+      if ($path =~ /\.\./) {
+        $self->status = 404;
+        return "GTFO";
+      }
+      $self->render($path);
     }
   ),
 
@@ -310,7 +334,8 @@ our @V = (
       my $file = "$self->{template}.html";
       my $output;
       $v->{R} = \&R;
-      $tt->process($file, $v, \$output);
+      my $r = $tt->process($file, $v, \$output);
+      warn $r unless ($r);
       $output;
     },
   )
