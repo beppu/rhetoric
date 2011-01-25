@@ -10,6 +10,8 @@ use File::Find::Rule;
 use File::Basename;
 use Method::Signatures::Simple;
 
+our $VERSION = '0.01';
+
 # global config for our blogging app
 our %CONFIG = (
   theme               => 'default',
@@ -79,9 +81,9 @@ sub storage {
       mk("$root/posts");
       mk("$root/navigation");
       # metadata
-      io("$root/title")       < "A Rhetoric Powered Blog"          unless (-e "$root/title");
-      io("$root/subtitle")    < "The Art of Persuasion"            unless (-e "$root/subtitle");
-      io("$root/description") < "A short description of this blog" unless (-e "$root/description");
+      io("$root/title")       < "Rhetoric"                                   unless (-e "$root/title");
+      io("$root/subtitle")    < "Simple Blogging for Perl"                   unless (-e "$root/subtitle");
+      io("$root/description") < "STOP MAKING SHIT SO GOD DAMNED COMPLICATED" unless (-e "$root/description");
       return 1;
     },
 
@@ -425,5 +427,6 @@ John BEPPU E<lt>beppu@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
+GPL
 
 =cut
