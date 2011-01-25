@@ -9,6 +9,7 @@ requires 'Squatting'           => '0.70';
 requires 'File::Find::Rule'    => 0;
 requires 'File::Which'         => 0;
 requires 'Pod::Simple::Search' => 0;
+requires 'IO::All'             => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
