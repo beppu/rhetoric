@@ -11,6 +11,20 @@
           <div style="clear: both;">&nbsp;</div>
           <h1 id="comments">Comments</h1>
           <div class="comment">
+            <ol>
+              [% FOREACH comment = comments %]
+              <li>
+                [% IF comment.url %]
+                <div><a href="[% comment.url %]" rel="nofollow">[% comment.name %]</a> said:</div>
+                [% ELSE %]
+                <div>[% comment.name %] said:</div>
+                [% END %]
+                <div>
+                  [% comment.body %]
+                </div>
+              </li>
+              [% END %]
+            </ol>
           </div>
           <div>
             <form id="comment-form" method="post" action="[% R('NewComment') %]">
@@ -20,11 +34,11 @@
               <h3>Name</h3>
               <input type="text" name="name" />
               <h3>Email</h3>
-              <input type="text" name="name" />
+              <input type="text" name="email" />
               <h3>URL</h3>
-              <input type="text" name="name" />
+              <input type="text" name="url" />
               <h3>Comment</h3>
-              <textarea name="comment" rows="8" cols="40"></textarea>
+              <textarea name="body" rows="8" cols="40"></textarea>
               <div>
                 <input type="submit" name="submit" value="Submit" />
               </div>

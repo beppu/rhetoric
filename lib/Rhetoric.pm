@@ -127,6 +127,7 @@ sub storage {
       $post->hour($h);
       $post->minute($m);
       $post->second($s);
+      $post->author($ENV{USER});
       return $post;
     },
 
@@ -147,7 +148,7 @@ sub storage {
         my @s = split('/', $post_path);
         my ($Y, $M, $D, $h, $m, $s) = @s[-6 .. -1];
         my $posted_on = sprintf('%s-%s-%sT%s:%s:%s', $Y, $M, $D, $h, $m, $s);
-        return H->new({
+        my $post = H->new({
           title     => $title,
           slug      => $slug,
           body      => $body,
@@ -159,7 +160,10 @@ sub storage {
           hour      => $h,
           minute    => $m,
           second    => $s,
+          author    => ( getpwuid( (stat("$post_path/title"))[4] ) )[0],
         });
+        #$post->comments($self->comments($post));
+        return $post;
       } else {
         return undef;
       }
@@ -228,11 +232,54 @@ sub storage {
     },
 
     comments => method($post) {
-      []
+      my $root = $CONFIG{'storage.file.path'};
+      my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
+        $root,
+        $post->year, $post->month,  $post->day,
+        $post->hour, $post->minute, $post->second,
+      );
+      my @comment_files = sort glob("$post_path/comments/*");
+      my @comments = map {
+        my ($name,$email,$url,@body) = io($_)->slurp;
+        chomp($name, $email, $url);
+        my $body = join('', @body);
+        H->new({
+          name  => $name,
+          email => $email,
+          url   => $url,
+          body  => $body,
+        });
+      } @comment_files;
+      \@comments;
     },
 
-    new_comment => method($comment) {
-      1;
+    new_comment => method($year, $month, $slug, $comment) {
+      ref($comment) eq 'HASH' && H->bless($comment);
+      my $post = $self->post($year, $month, $slug);
+      my $root = $CONFIG{'storage.file.path'};
+      my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
+        $root,
+        $post->year, $post->month,  $post->day,
+        $post->hour, $post->minute, $post->second,
+      );
+      warn("$post_path/comments");
+      mk("$post_path/comments");
+      my @comment_files = sort glob("$post_path/comments/*");
+      my $index = '001';
+      if (@comment_files) {
+        warn "previous comments existed";
+        my $last = (split('/', $comment_files[-1]))[-1];
+        $last =~ s/^0*//;
+        warn "last is $last";
+        $index = sprintf('%03d', $last + 1);
+      }
+      warn $index;
+      io("$post_path/comments/$index") <  $comment->name  . "\n";
+      io("$post_path/comments/$index") << $comment->email . "\n";
+      io("$post_path/comments/$index") << $comment->url   . "\n";
+      io("$post_path/comments/$index") << $comment->body  . "\n";
+      $comment->success(1);
+      $comment;
     },
 
   });
@@ -262,7 +309,8 @@ our @C = (
     get => method($year, $month, $slug) {
       my $storage = Rhetoric::storage();
       my $v = $self->v;
-      $v->{post} = $storage->post($year, $month, $slug);
+      $v->{post}     = $storage->post($year, $month, $slug);
+      $v->{comments} = $storage->comments($v->{post});
       $self->render('post');
     },
     post => method($year, $month, $slug) {
@@ -290,13 +338,18 @@ our @C = (
       my $slug    = $input->{slug};
       my $name    = $input->{name};
       my $email   = $input->{email};
-      my $comment = $input->{comment};
+      my $url     = $input->{url};
+      my $body    = $input->{body};
+      warn "what";
       my $storage = Rhetoric::storage();
+      warn "the";
       my $result  = $storage->new_comment($year, $month, $slug, {
         name      => $name,
         email     => $email,
-        comment   => $comment
+        url       => $url,
+        body      => $body
       });
+      warn "fuck";
       if ($result->success) {
         $self->redirect(R('Post', $year, $month, $slug));
       } else {
