@@ -1,0 +1,26 @@
+#!/usr/bin/env perl
+use common::sense;
+use Rhetoric;
+
+Rhetoric->init;
+
+package Rhetoric::Controllers;
+
+# TODO - add archives when that controller is ready
+# TODO - add categories when that controller is ready
+my %replacement = (
+  Home     => [ '/index.html', '/page/(\d+).html' ],
+  Post     => [ '/(\d+)/(\d+)/([\w-]+).html' ],
+  X        => [ '/(.*).html' ],
+);
+
+while (my ($controller, $urls) = each(%replacement)) {
+  $C{$controller}->{urls} = $urls;
+}
+
+# TODO - export pages for Home controller
+
+# TODO - export pages for Post controller
+
+# TODO - export pages for X controller
+# XXX  - How will I know what pages to export for X?
