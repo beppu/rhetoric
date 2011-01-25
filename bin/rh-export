@@ -18,9 +18,13 @@ while (my ($controller, $urls) = each(%replacement)) {
   $C{$controller}->{urls} = $urls;
 }
 
+my $storage = Rhetoric::storage();
+
 # TODO - export pages for Home controller
 
 # TODO - export pages for Post controller
 
 # TODO - export pages for X controller
 # XXX  - How will I know what pages to export for X?
+
+# TODO - export static files for current theme
