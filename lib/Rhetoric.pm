@@ -18,8 +18,8 @@ our %CONFIG = (
   'storage.file.path' => '/tmp/rhetoric',
 );
 
-# XXX - divorce from Continuity
-# TODO - Make squatting a good citizen in the Plack universe
+# TODO - divorce Continuity
+# TODO - marry   Plack
 sub continue {                                                                                                                                                                                       
   my $app = shift;
   $app->next::method(
@@ -231,25 +231,24 @@ our @C = (
     Home => [ '/', '/page/(\d+)' ],
     get => method($page) {
       my $storage = Rhetoric::storage();
-      my $posts   = $storage->posts($Rhetoric::CONFIG{posts_per_page});
       my $v       = $self->v;
-      $v->{posts} = [ $storage->posts(10) ];
+      $v->{posts} = [ $storage->posts($Rhetoric::CONFIG{posts_per_page}) ];
       $self->render('index');
     },
   ),
 
   C(
     Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
-    get => method($year, $month, $title_slug) {
+    get => method($year, $month, $slug) {
       my $storage = Rhetoric::storage();
       my $v = $self->v;
-      $v->{post} = $storage->post($year, $month, $title_slug);
+      $v->{post} = $storage->post($year, $month, $slug);
       $self->render('post');
     },
-    post => method($year, $month, $title_slug) {
+    post => method($year, $month, $slug) {
       my $v = $self->v;
       my $storage = Rhetoric::storage();
-      my $post = $v->{post} = $storage->post($year, $month, $title_slug);
+      my $post = $v->{post} = $storage->post($year, $month, $slug);
     }
   ),
 
