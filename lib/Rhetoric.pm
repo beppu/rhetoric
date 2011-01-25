@@ -79,11 +79,14 @@ sub storage {
     init => method {
       my $root = $CONFIG{'storage.file.path'};
       mk("$root/posts");
-      mk("$root/navigation");
+      mk("$root/menu");
+      mk("$root/sidebar");
       # metadata
       io("$root/title")       < "Rhetoric"                                   unless (-e "$root/title");
       io("$root/subtitle")    < "Simple Blogging for Perl"                   unless (-e "$root/subtitle");
+      # XXX - going to move description into a sidebar module
       io("$root/description") < "STOP MAKING SHIT SO GOD DAMNED COMPLICATED" unless (-e "$root/description");
+      io("$root/pages")       < "about\nlinks\ncontact\n"                    unless (-e "$root/pages");
       return 1;
     },
 
@@ -116,6 +119,14 @@ sub storage {
       io("$post_path/slug")   < slug($title);
       io("$post_path/body")   < $body;
       io("$post_path/format") < $format;
+      $post->slug(slug($title));
+      $post->format($format);
+      $post->year($Y);
+      $post->month($M);
+      $post->day($D);
+      $post->hour($h);
+      $post->minute($m);
+      $post->second($s);
       return $post;
     },
 
@@ -134,13 +145,20 @@ sub storage {
         my $body   < io("$post_path/body");
         my $format < io("$post_path/format");
         my @s = split('/', $post_path);
-        my $posted_on = sprintf('%s-%s-%sT%s:%s:%s', @s[-6 .. -1]);
+        my ($Y, $M, $D, $h, $m, $s) = @s[-6 .. -1];
+        my $posted_on = sprintf('%s-%s-%sT%s:%s:%s', $Y, $M, $D, $h, $m, $s);
         return H->new({
           title     => $title,
           slug      => $slug,
           body      => $body,
           format    => $format,
           posted_on => $posted_on,
+          year      => $Y,
+          month     => $M,
+          day       => $D,
+          hour      => $h,
+          minute    => $m,
+          second    => $s,
         });
       } else {
         return undef;
