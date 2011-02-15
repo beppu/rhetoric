@@ -44,7 +44,7 @@ our $storage = H->new({
     my ($title, $body, $format, $schedule);
     $title = $post->title;
     $body  = $post->body;
-    $format //= 'pod';
+    $format ||= 'pod';
     my ($Y, $M, $D, $h, $m, $s);
     if ($schedule) {
       ($Y, $M, $D, $h, $m, $s) = split('/', $schedule);
