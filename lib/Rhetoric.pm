@@ -4,6 +4,7 @@ use aliased 'Squatting::H';
 
 use Squatting;
 use Try::Tiny;
+use Memoize;
 
 use Rhetoric::Helpers ':all';
 
@@ -42,6 +43,7 @@ sub service {
   $class->next::method($c, @args);
 }
 
+memoize('storage');
 # Return an object that handles the storage for blog data based on
 # what $CONFIG{storage} dictates.
 sub storage {
