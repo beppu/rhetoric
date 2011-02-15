@@ -1,6 +1,6 @@
 package Rhetoric;
 use common::sense;
-use base 'Squatting';
+use Squatting;
 use aliased 'Squatting::H';
 
 # TODO - move to Rhetoric::Storage::File
@@ -9,15 +9,17 @@ use File::Path::Tiny;
 use File::Find::Rule;
 use File::Basename;
 use Method::Signatures::Simple;
+use DateTime;
 
 our $VERSION = '0.01';
 
 # global config for our blogging app
 our %CONFIG = (
-  theme               => 'default',
-  storage             => 'File',  # or mysql or CouchDB or WHATEVER!!!
-  posts_per_page      => 4,
-  'storage.file.path' => '/tmp/rhetoric',
+  'theme'               => 'BrownStone',
+  'time_format'         => '%b %e, %Y %I:%M%P',
+  'posts_per_page'      => 8,
+  'storage'             => 'File',  # or mysql or CouchDB or WHATEVER!!!
+  'storage.file.path'   => '/tmp/rhetoric',
 );
 
 # TODO - divorce Continuity
@@ -36,6 +38,8 @@ sub service {
   my ($class, $c, @args) = @_;
   my $v = $c->v;
   my $s = $v->{storage} = storage();
+  H->bless($v);
+  H->bless($c->input);
   $v->{title}       = $s->meta('title');
   $v->{subtitle}    = $s->meta('subtitle');
   $v->{description} = $s->meta('description');
@@ -112,6 +116,14 @@ sub storage {
       } else {
         ($Y, $M, $D, $h, $m, $s) = now();
       }
+      my $dt   = DateTime->new(
+        year   => $Y,
+        month  => $M,
+        day    => $D,
+        hour   => $h,
+        minute => $m,
+        second => $s,
+      );
       my $root = $CONFIG{'storage.file.path'};
       my $post_path = sprintf("$root/posts/%d/%02d/%02d/%02d/%02d/%02d", $Y, $M, $D, $h, $m, $s);
       mk($post_path);
@@ -123,10 +135,7 @@ sub storage {
       $post->format($format);
       $post->year($Y);
       $post->month($M);
-      $post->day($D);
-      $post->hour($h);
-      $post->minute($m);
-      $post->second($s);
+      $post->posted_on($dt);
       $post->author($ENV{USER});
       return $post;
     },
@@ -288,7 +297,7 @@ sub storage {
 
 #_____________________________________________________________________________
 package Rhetoric::Controllers;
-use Squatting ':controllers';
+use common::sense;
 use Method::Signatures::Simple;
 use aliased 'Squatting::H';
 
@@ -297,9 +306,9 @@ our @C = (
   C(
     Home => [ '/', '/page/(\d+)' ],
     get => method($page) {
-      my $storage = Rhetoric::storage();
       my $v       = $self->v;
-      $v->{posts} = [ $storage->posts($Rhetoric::CONFIG{posts_per_page}) ];
+      my $storage = $v->storage;
+      $v->{posts} = [ $storage->posts($CONFIG{posts_per_page}) ];
       $self->render('index');
     },
   ),
@@ -307,19 +316,21 @@ our @C = (
   C(
     Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
     get => method($year, $month, $slug) {
-      my $storage = Rhetoric::storage();
-      my $v = $self->v;
+      my $v          = $self->v;
+      my $storage    = $v->storage;
       $v->{post}     = $storage->post($year, $month, $slug);
       $v->{comments} = $storage->comments($v->{post});
       $self->render('post');
     },
     post => method($year, $month, $slug) {
-      my $v = $self->v;
-      my $storage = Rhetoric::storage();
-      my $post = $v->{post} = $storage->post($year, $month, $slug);
+      my $v       = $self->v;
+      my $storage = $v->storage;
+      my $post    = $v->{post} = $storage->post($year, $month, $slug);
+      # XXX - modify post and redirect
     }
   ),
 
+  # Need to be able to create posts from a form too, right?!
   C(
     NewPost => [ '/post' ],
     get => method {
@@ -340,16 +351,13 @@ our @C = (
       my $email   = $input->{email};
       my $url     = $input->{url};
       my $body    = $input->{body};
-      warn "what";
-      my $storage = Rhetoric::storage();
-      warn "the";
+      my $storage = $self->v->storage;
       my $result  = $storage->new_comment($year, $month, $slug, {
         name      => $name,
         email     => $email,
         url       => $url,
         body      => $body
       });
-      warn "fuck";
       if ($result->success) {
         $self->redirect(R('Post', $year, $month, $slug));
       } else {
@@ -382,7 +390,6 @@ our @C = (
 
 #_____________________________________________________________________________
 package Rhetoric::Views;
-use Squatting ':views';
 use Method::Signatures::Simple;
 use Template;
 use Data::Dump 'pp';
