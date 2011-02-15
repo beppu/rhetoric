@@ -1,9 +1,35 @@
 package Rhetoric::Storage::CouchDB;
 use common::sense;
 use aliased 'Squatting::H';
+
 use AnyEvent::CouchDB;
+use Method::Signatures::Simple;
+
+use Rhetoric::Helpers ':all';
 
 our $storage = H->new({
+  init => method {
+  },
+  meta => method($key, $value) {
+  },
+  new_post => method($post) {
+  },
+  post => method($post) {
+  },
+  posts => method($year, $month, $slug) {
+  },
+  categories => method {
+  },
+  category_posts => method {
+  },
+  archives => method {
+  },
+  archive_posts => method($year, $month) {
+  },
+  comments => method($post) {
+  },
+  new_comment => method($year, $month, $slug, $comment) {
+  },
 });
 
 1;

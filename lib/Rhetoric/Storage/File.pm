@@ -247,8 +247,27 @@ Rhetoric::Storage::File - filesystem-based storage for Rhetoric blog data
 
 =head2 Methods for $storage
 
-=head3 init
+=head3 $storage->init
 
+=head3 $storage->meta($key, $value)
+
+=head3 $storage->new_post($post)
+
+=head3 $storage->post($year, $month, $slug)
+
+=head3 $storage->posts($count, $after)
+
+=head3 $storage->categories
+
+=head3 $storage->category_posts
+
+=head3 $storage->archives
+
+=head3 $storage->archive_posts($year, $month)
+
+=head3 $storage->comments($post)
+
+=head3 $storage->new_comment($year, $month, $slug, $comment)
 
 =cut
 

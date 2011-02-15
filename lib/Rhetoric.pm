@@ -49,7 +49,6 @@ sub storage {
   my $impl    = shift || $Rhetoric::CONFIG{'storage'};
   my $path    = "Rhetoric/Storage/$impl.pm";
   my $package = "Rhetoric::Storage::$impl";
-  warn $package;
   try {
     require($path);
   } catch {
