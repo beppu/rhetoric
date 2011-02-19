@@ -1,20 +1,18 @@
 package Rhetoric;
 use common::sense;
 use aliased 'Squatting::H';
-
 use Squatting;
 use Try::Tiny;
-
 use Rhetoric::Helpers ':all';
 
 our $VERSION = '0.01';
 
 # global config for our blogging app
 our %CONFIG = (
-  'theme'               => 'BrownStone',
+  'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'time_format'         => '%b %e, %Y %I:%M%P',
   'posts_per_page'      => 8,
-  'storage'             => 'File',  # Rhetoric::Storage::____
+  'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '/tmp/rhetoric',
 );
 
@@ -39,6 +37,7 @@ sub service {
   $v->{title}       = $s->meta('title');
   $v->{subtitle}    = $s->meta('subtitle');
   $v->{description} = $s->meta('description');
+  $v->{menu}        = $s->menu;
   $class->next::method($c, @args);
 }
 
@@ -60,8 +59,9 @@ sub storage {
 #_____________________________________________________________________________
 package Rhetoric::Controllers;
 use common::sense;
-use Method::Signatures::Simple;
 use aliased 'Squatting::H';
+use Method::Signatures::Simple;
+use Rhetoric::Helpers ':all';
 
 our @C = (
 
@@ -70,7 +70,7 @@ our @C = (
     get => method($page) {
       my $v       = $self->v;
       my $storage = $v->storage;
-      $v->{posts} = [ $storage->posts($CONFIG{posts_per_page}) ];
+      $v->{posts} = $storage->posts($CONFIG{posts_per_page});
       $self->render('index');
     },
   ),
@@ -134,9 +134,12 @@ our @C = (
     get => method($category) {
       my $storage = Rhetoric::storage();
       my $v = $self->v;
+      $v->posts = $storage->category_posts($category);
+      $self->render('category');
     }
   ),
 
+  # Everything else that's not static is a page to be rendered through the view.
   C(
     X => [ '/(.*)' ],
     get => method($path) {

@@ -10,6 +10,7 @@ use File::Find::Rule;
 use File::Basename;
 use Method::Signatures::Simple;
 use DateTime;
+use Data::Dump 'pp';
 
 # shortcuts for File::Path::Tiny
 *mk = *File::Path::Tiny::mk;
@@ -21,6 +22,7 @@ our $storage = H->new({
     mk("$root/menu");
     mk("$root/sidebar");
     # metadata
+    # TODO - use the meta method instead of using io directly
     io("$root/title")       < "Rhetoric"                                   unless (-e "$root/title");
     io("$root/subtitle")    < "Simple Blogging for Perl"                   unless (-e "$root/subtitle");
     # XXX - going to move description into a sidebar module
@@ -114,7 +116,7 @@ our $storage = H->new({
   },
 
   # FIXME - This implementation is not efficient,
-  # FIXME - because it scans the entire post history every time.
+  # FIXME   because it scans the entire post history every time.
   posts => method($count, $after) {
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my @all_posts = reverse sort (
@@ -130,6 +132,7 @@ our $storage = H->new({
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
     } @all_posts[0 .. ($count - 1)];
+    return \@posts;
   },
 
   # TODO - figure out how I should store category information
@@ -224,6 +227,31 @@ our $storage = H->new({
     io("$post_path/comments/$index") << $comment->body  . "\n";
     $comment->success(1);
     $comment;
+  },
+
+  menu => method($menu) {
+    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $menu_path = "$root/menu";
+    if (defined($menu)) {
+      my $i = 1;
+      for (@$menu) {
+        my $name = $_->name;
+        my $url  = $_->url;
+        io(sprintf("$menu_path/%02d_%s", $i, $menu)) < $url;
+        $i++;
+      }
+    } else {
+      my @menu_files = sort glob("$menu_path/*");
+      $menu = [ map {
+        my $filename = $_;
+        my $url      < io($filename);
+        my ($name)   = fileparse($filename);
+        chomp($url);
+        $name        =~ s/^\d*_//;
+        H->new({ name => $name, url => $url });
+      } @menu_files ];
+    }
+    return $menu;
   },
 });
 
