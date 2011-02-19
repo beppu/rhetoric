@@ -160,7 +160,7 @@ use Template;
 use Data::Dump 'pp';
 
 our $tt = Template->new({
-  INCLUDE_PATH => './share/theme/brownstone',
+  INCLUDE_PATH => './share/theme/BrownStone',
   POST_CHOMP   => 1,
 });
 
