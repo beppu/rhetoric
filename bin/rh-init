@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use common::sense;
-use feature qw(say);
+use Rhetoric;
 
-say "Hello, World!";
+my $s = Rhetoric::storage;
+$s->init;
