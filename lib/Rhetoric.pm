@@ -34,10 +34,11 @@ sub service {
   my $s = $v->{storage} = storage();
   H->bless($v);
   H->bless($c->input);
-  $v->{title}       = $s->meta('title');
-  $v->{subtitle}    = $s->meta('subtitle');
-  $v->{description} = $s->meta('description');
-  $v->{menu}        = $s->menu;
+  $v->{title}        = $s->meta('title');
+  $v->{subtitle}     = $s->meta('subtitle');
+  $v->{description}  = $s->meta('description');
+  $v->{menu}         = $s->menu;
+  $v->{request_path} = $c->env->{REQUEST_PATH};
   $class->next::method($c, @args);
 }
 
@@ -139,14 +140,24 @@ our @C = (
     }
   ),
 
+  C(
+    Env => [ '/env' ],
+    get => method {
+      use Data::Dump 'pp';
+      $self->headers->{'Content-Type'} = 'text/plain';
+      return pp($self->env);
+    }
+  ),
+
   # Everything else that's not static is a page to be rendered through the view.
   C(
-    X => [ '/(.*)' ],
+    Page => [ '/(.*)' ],
     get => method($path) {
       if ($path =~ /\.\./) {
         $self->status = 404;
         return "GTFO";
       }
+      my $v = $self->v;
       $self->render($path);
     }
   ),

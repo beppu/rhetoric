@@ -34,7 +34,7 @@ Released   : 20100928
           <div id="menu">
             <ul>
             [% FOREACH item IN menu %]
-              <li><a href="[% item.url %]">[% item.name %]</a></li>
+              <li[% IF request_path == item.url %] class="current_page_item"[% END %]><a href="[% item.url %]">[% item.name %]</a></li>
             [% END %]
             <!--
               <li class="current_page_item"><a href="#">Home</a></li>
