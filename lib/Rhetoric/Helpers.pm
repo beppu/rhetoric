@@ -15,10 +15,11 @@ our %EXPORT_TAGS = (all => \@EXPORT_OK);
   }
 }
 
-our $E = Rhetoric::Exception->new({
+our $Exception = Rhetoric::Exception->new({
   type    => 'Exception',
   message => 'BOOM!?!#@@',
 });
+our $E = $Exception;
 
 # y m d h m s
 sub now {
