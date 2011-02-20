@@ -10,8 +10,17 @@ our %EXPORT_TAGS = (all => \@EXPORT_OK);
   package Rhetoric::Exception;
   use base 'Squatting::H';
   use overload '""' => \&STR;
-  sub STR {
-    $_[0]->message;
+  use Method::Signatures::Simple;
+
+  # TODO - use Devel::StackTrace or one of its variants
+  method set($message) {
+    $self->message($message);
+    $self->stack_trace([]);
+    $self;
+  }
+
+  method STR {
+    $self->message;
   }
 }
 
