@@ -44,11 +44,12 @@ our $storage = H->new({
   new_post => method($post) {
     ref($post) eq 'HASH' && H->bless($post);
     my ($title, $body, $format, $schedule);
-    $title = $post->title;
-    $body  = $post->body;
-    $format ||= 'pod';
+    $title  = $post->title;
+    $body   = $post->body;
+    $format = $post->format || 'pod';
     my ($Y, $M, $D, $h, $m, $s);
     if ($schedule) {
+      # FIXME - use $post->posted_on instead of $schedule
       ($Y, $M, $D, $h, $m, $s) = split('/', $schedule);
     } else {
       ($Y, $M, $D, $h, $m, $s) = now();
@@ -93,7 +94,7 @@ our $storage = H->new({
       my $format < io("$post_path/format");
       my @s = split('/', $post_path);
       my ($Y, $M, $D, $h, $m, $s) = @s[-6 .. -1];
-      my $posted_on = sprintf('%s-%s-%sT%s:%s:%s', $Y, $M, $D, $h, $m, $s);
+      my $posted_on = DateTime->new(year => $Y, month => $M, day => $D, hour => $h, minute => $m, second => $s);
       my $post = H->new({
         title     => $title,
         slug      => $slug,

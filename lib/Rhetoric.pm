@@ -39,6 +39,7 @@ sub service {
   $v->{description}  = $s->meta('description');
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
+  $v->{time_format}  = $CONFIG{time_format};
   $class->next::method($c, @args);
 }
 

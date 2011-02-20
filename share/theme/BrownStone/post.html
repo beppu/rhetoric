@@ -1,7 +1,7 @@
         <div id="content">
           <div class="post">
             <h2 class="title"><a href="[% R('Post', post.year, post.month, post.slug) %]">[% post.title %]</a></h2>
-            <p class="meta"><span class="date">September 13, 2001</span><span class="posted">Posted by <a href="#">[% post.author || "beppu" %]</a></span></p>
+            <p class="meta"><span class="date">[% post.posted_on.strftime(time_format) %]</span><span class="posted">Posted by <a href="#">[% post.author || "beppu" %]</a></span></p>
             <div style="clear: both;">&nbsp;</div>
             <div class="entry">
               [% post.body %]
