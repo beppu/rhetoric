@@ -6,7 +6,7 @@
             <div style="clear: both;">&nbsp;</div>
             <div class="entry">
               [% post.body %]
-              <p class="links"><a href="[% R('Post', post.year, post.month, post.slug) %]">Read More</a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="[% R('Post', '2011', '01', post.slug) %]#comments">Comments</a></p>
+              <p class="links"><a href="[% R('Post', post.year, post.month, post.slug) %]">Read More</a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="[% R('Post', post.year, post.month, post.slug) %]#comments">Comments</a></p>
             </div>
           </div>
           [% END %]
