@@ -7,6 +7,7 @@ requires 'aliased'                    => 0;
 requires 'common::sense'              => 0;
 requires 'Squatting'                  => '0.80';
 requires 'File::Find::Rule'           => 0;
+requires 'File::Path::Tiny'           => 0;
 requires 'File::Which'                => 0;
 requires 'Pod::Simple::Search'        => 0;
 requires 'IO::All'                    => 0;
