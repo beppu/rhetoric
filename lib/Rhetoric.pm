@@ -42,7 +42,23 @@ sub service {
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
+  if (exists $CONFIG{relocated}) {
+    for (@{ $v->menu }) {
+      $_->url($CONFIG{relocated} . $_->url);
+    }
+  }
   $class->next::method($c, @args);
+}
+
+sub init {
+  my ($class) = @_;
+  # TODO - Make absolutely sure the Page controller is at $C[-1].
+  if ($Rhetoric::Controllers::C[-1]->name ne 'Page') {
+    # find index of Page controller
+    # splice it out
+    # push it back on to the end
+  }
+  $class->next::method();
 }
 
 memoize('storage');
@@ -53,11 +69,7 @@ sub storage {
   my $impl    = shift || $Rhetoric::CONFIG{'storage'};
   my $path    = "Rhetoric/Storage/$impl.pm";
   my $package = "Rhetoric::Storage::$impl";
-  try {
-    require($path);
-  } catch {
-    warn "$package could not be loaded: $_";
-  };
+  require($path); # let it die if it fails.
   return ${"${package}::storage"};
 }
 
@@ -154,7 +166,15 @@ our @C = (
     }
   ),
 
+  C(
+    Theme => [ '/theme' ],
+    get => method {
+      return $self->env->{HTTP_HOST} . " => $CONFIG{theme}\n";
+    }
+  ),
+
   # Everything else that's not static is a page to be rendered through the view.
+  # This controller has to be last!
   C(
     Page => [ '/(.*)' ],
     get => method($path) {
@@ -176,7 +196,7 @@ use Template;
 use Data::Dump 'pp';
 
 our $tt = Template->new({
-  INCLUDE_PATH => './share/theme/BrownStone',
+  INCLUDE_PATH => [ '.', './share/theme/BrownStone' ],
   POST_CHOMP   => 1,
 });
 
