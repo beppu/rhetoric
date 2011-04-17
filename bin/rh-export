@@ -1,10 +1,30 @@
 #!/usr/bin/env perl
 use common::sense;
-use Rhetoric;
+use Rhetoric 'With::MockRequest';
+use Getopt::Long;
+use Data::Dump 'pp';
+Getopt::Long::Configure('no_ignore_case');
+GetOptions(
+  \%_,
+  'config|c=s%',
+  'help|h'
+);
+
+my $C = \%Rhetoric::CONFIG;
+for (keys %{$_{config}}) {
+  if (/\[/ || /\{/) {
+    my $key = $_;
+    eval '$C->'.$key.' = $_{config}'."{'$key'}";
+  } else {
+    $C->{$_} = $_{config}{$_}
+  }
+}
+pp $C;
 
 Rhetoric->init;
 
 package Rhetoric::Controllers;
+use IO::All;
 
 # TODO - add archives when that controller is ready
 # TODO - add categories when that controller is ready
@@ -15,12 +35,13 @@ my %replacement = (
 );
 
 while (my ($controller, $urls) = each(%replacement)) {
-  $C{$controller}->{urls} = $urls;
+  $Rhetoric::Controllers::C{$controller}->{urls} = $urls;
 }
 
-my $storage = Rhetoric::storage();
-
 # TODO - export pages for Home controller
+pp \%Rhetoric::Controllers::C;
+my ($cc, $content) = Rhetoric->get('Home');
+$content > io('index.html');
 
 # TODO - export pages for Post controller
 
