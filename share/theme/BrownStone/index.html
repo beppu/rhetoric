@@ -10,6 +10,14 @@
           </div>
           [% END %]
           <div class="pager">
-            <h1><a href="[% R('Home', pager.previous_page) %]">Newer</a></h1>
-            <h1><a href="[% R('Home', pager.next_page)     %]">Older</a></h1>
+            [% IF pager.previous_page %]
+              [% IF pager.previous_page == 1 %]
+            <h1 class="previous"><a href="[% R('Home') %]">Newer</a></h1>
+              [% ELSE %]
+            <h1 class="previous"><a href="[% R('Home', pager.previous_page) %]">Newer</a></h1>
+              [% END %]
+            [% END %]
+            [% IF pager.next_page %]
+            <h1 class="next"><a href="[% R('Home', pager.next_page)     %]">Older</a></h1>
+            [% END %]
           </div>

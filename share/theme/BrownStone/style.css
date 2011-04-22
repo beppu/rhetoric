@@ -267,6 +267,16 @@ a:hover {
 	font-weight: bold;
 }
 
+/* Pager */
+
+.pager .previous {
+	float: left;
+}
+
+.pager .next {
+	float: right;
+}
+
 /* Sidebar */
 
 #sidebar {
