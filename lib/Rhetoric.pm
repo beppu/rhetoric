@@ -81,6 +81,7 @@ use aliased 'Squatting::H';
 use Method::Signatures::Simple;
 use Rhetoric::Helpers ':all';
 use Data::Dump 'pp';
+use Ouch;
 
 our @C = (
 
@@ -119,6 +120,20 @@ our @C = (
       $self->render('new_post');
     },
     post => method {
+      my $storage = $self->v->storage;
+      my $input   = $self->input;
+      try {
+        $storage->new_post({
+          title => $input->title,
+          body  => $input->body,
+        });
+      }
+      catch {
+        when (kiss('MissingTitle', $_)) { }
+        when (kiss('MissingBody',  $_)) { }
+        default {
+        }
+      }
     },
   ),
 
@@ -126,24 +141,34 @@ our @C = (
     NewComment => [ '/comment' ],
     post => method {
       my $input   = $self->input;
-      my $year    = $input->{year};
-      my $month   = $input->{month};
-      my $slug    = $input->{slug};
-      my $name    = $input->{name};
-      my $email   = $input->{email};
-      my $url     = $input->{url};
-      my $body    = $input->{body};
+      my $year    = $input->year;
+      my $month   = $input->month;
+      my $slug    = $input->slug;
+      my $name    = $input->name;
+      my $email   = $input->email;
+      my $url     = $input->url;
+      my $body    = $input->body;
       my $storage = $self->v->storage;
-      my $result  = $storage->new_comment($year, $month, $slug, {
-        name      => $name,
-        email     => $email,
-        url       => $url,
-        body      => $body
-      });
+      my $result;
+      try {
+        $result = $storage->new_comment($year, $month, $slug, {
+          name  => $name,
+          email => $email,
+          url   => $url,
+          body  => $body
+        });
+      }
+      catch {
+        when (kiss('InvalidComment'),  $_) { }
+        default {
+          warn $_;
+        }
+      };
       if ($result->success) {
         $self->redirect(R('Post', $year, $month, $slug));
       } else {
         # TODO - put errors in session
+        #$self->state->{errors} = $result->errors;
         $self->redirect(R('Post', $year, $month, $slug));
       }
     }

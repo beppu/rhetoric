@@ -148,6 +148,7 @@ our $storage = H->new({
     []
   },
 
+  # TODO - list of category posts
   category_posts => method($category) {
     []
   },
@@ -170,6 +171,7 @@ our $storage = H->new({
     @ad;
   },
 
+  # 
   archive_posts => method($y, $m) {
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my @all_posts = reverse sort (
@@ -186,6 +188,7 @@ our $storage = H->new({
     } @all_posts;
   },
 
+  #
   comments => method($post) {
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
@@ -208,6 +211,7 @@ our $storage = H->new({
     \@comments;
   },
 
+  #
   new_comment => method($year, $month, $slug, $comment) {
     ref($comment) eq 'HASH' && H->bless($comment);
     my $post = $self->post($year, $month, $slug);
@@ -237,6 +241,7 @@ our $storage = H->new({
     $comment;
   },
 
+  #
   menu => method($menu) {
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my $menu_path = "$root/menu";
