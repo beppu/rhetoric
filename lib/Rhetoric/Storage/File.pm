@@ -2,15 +2,16 @@ package Rhetoric::Storage::File;
 use common::sense;
 use aliased 'Squatting::H';
 
-use Rhetoric::Helpers ':all';
-
-use IO::All;
-use File::Path::Tiny;
-use File::Find::Rule;
-use File::Basename;
-use Method::Signatures::Simple;
-use DateTime;
 use Data::Dump 'pp';
+use DateTime;
+use File::Basename;
+use File::Find::Rule;
+use File::Path::Tiny;
+use IO::All;
+use Method::Signatures::Simple;
+use Ouch;
+
+use Rhetoric::Helpers ':all';
 
 # shortcuts for File::Path::Tiny
 *mk = *File::Path::Tiny::mk;
@@ -107,7 +108,7 @@ our $storage = H->new({
         hour      => $h,
         minute    => $m,
         second    => $s,
-        author    => ( getpwuid( (stat("$post_path/title"))[4] ) )[0],
+        author    => ( $Rhetoric::CONFIG{user} // getpwuid( (stat("$post_path/title"))[4] ) )[0],
       });
       #$post->comments($self->comments($post));
       return $post;
@@ -118,7 +119,7 @@ our $storage = H->new({
 
   # FIXME - This implementation is not efficient,
   # FIXME   because it scans the entire post history every time.
-  posts => method($count, $after) {
+  posts => method($count, $page) {
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my @all_posts = reverse sort (
       File::Find::Rule
@@ -127,13 +128,19 @@ our $storage = H->new({
         ->in("$root/posts")
     );
     $count = (@all_posts < $count) ? scalar(@all_posts) : $count;
+    my $pager = Data::Page->new(
+      scalar(@all_posts),   # total # of posts
+      $count,               # posts per page
+      $page                 # current page
+    );
+    my @p = $pager->splice(\@all_posts);
     my @posts = map {
       my @d = (split('/', $_))[-7 .. -1]; # d for directory
       my $slug < io($_);
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
-    } @all_posts[0 .. ($count - 1)];
-    return \@posts;
+    } @p;
+    return (\@posts, $pager);
   },
 
   # TODO - figure out how I should store category information

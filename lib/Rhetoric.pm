@@ -11,6 +11,7 @@ our $VERSION = '0.01';
 
 # global config for our blogging app
 our %CONFIG = (
+  'user'                => undef,                 # used for rhetoric.al accounts but otherwise optional
   'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'time_format'         => '%b %e, %Y %I:%M%P',
   'posts_per_page'      => 8,
@@ -33,7 +34,7 @@ sub continue {
 sub service {
   my ($class, $c, @args) = @_;
   my $v = $c->v;
-  my $s = $v->{storage} = storage();
+  my $s = $v->{storage} = storage($CONFIG{storage});
   H->bless($v);
   H->bless($c->input);
   $v->{title}        = $s->meta('title');
@@ -66,7 +67,7 @@ memoize('storage');
 # what $CONFIG{storage} dictates.
 sub storage {
   no strict 'refs';
-  my $impl    = shift || $Rhetoric::CONFIG{'storage'};
+  my $impl    = shift;
   my $path    = "Rhetoric/Storage/$impl.pm";
   my $package = "Rhetoric::Storage::$impl";
   require($path); # let it die if it fails.
@@ -88,7 +89,8 @@ our @C = (
     get => method($page) {
       my $v       = $self->v;
       my $storage = $v->storage;
-      $v->{posts} = $storage->posts($CONFIG{posts_per_page});
+      $page //= 1;
+      ($v->{posts}, $v->{pager}) = $storage->posts($CONFIG{posts_per_page}, $page);
       $self->render('index');
     },
   ),
@@ -150,9 +152,9 @@ our @C = (
   C(
     Category => [ '/category/([\w-]+)' ],
     get => method($category) {
-      my $storage = Rhetoric::storage();
-      my $v = $self->v;
-      $v->posts = $storage->category_posts($category);
+      my $v       = $self->v;
+      my $storage = $v->storage;
+      ($v->{posts}, $v->{pager}) = $storage->category_posts($category);
       $self->render('category');
     }
   ),
