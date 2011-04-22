@@ -24,7 +24,7 @@ our %CONFIG = (
 sub continue {
   my $app = shift;
   $app->next::method(
-    docroot => "./share/theme/brownstone", 
+    docroot => "share", 
     staticp => sub { $_[0]->url =~ m/\.(jpg|jpeg|gif|png|css|ico|js|swf)$/ },
     @_
   );
