@@ -222,8 +222,9 @@ use Method::Signatures::Simple;
 use Template;
 use Data::Dump 'pp';
 
+# $tt is going to have to be localized in a mass vhost environment
 our $tt = Template->new({
-  INCLUDE_PATH => [ '.', './share/theme/BrownStone' ],
+  INCLUDE_PATH => [ ".", './share/theme/BrownStone' ],
   POST_CHOMP   => 1,
 });
 

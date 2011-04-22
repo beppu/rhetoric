@@ -91,8 +91,9 @@ our $storage = H->new({
     if ($file) {
       my $post_path = dirname($file);
       my $title  < io("$post_path/title");
-      my $body   < io("$post_path/body");
       my $format < io("$post_path/format");
+      chomp($format);
+      my $body   = $F->$format(io("$post_path/body")->all);
       my @s = split('/', $post_path);
       my ($Y, $M, $D, $h, $m, $s) = @s[-6 .. -1];
       my $posted_on = DateTime->new(year => $Y, month => $M, day => $D, hour => $h, minute => $m, second => $s);

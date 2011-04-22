@@ -6,7 +6,7 @@ use Memoize;
 use Ouch;
 use Method::Signatures::Simple;
 
-memoize('_load');
+#memoize('_load');
 sub _load {
   my $module    = shift;
   my $formatter = shift;
