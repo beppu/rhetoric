@@ -1,8 +1,10 @@
 package Rhetoric::Formatters;
 use common::sense;
+use aliased 'Squatting::H';
 use Try::Tiny;
-use Rhetoric::Helpers ':all';
 use Memoize;
+use Ouch;
+use Method::Signatures::Simple;
 
 memoize('_load');
 sub _load {
@@ -16,18 +18,17 @@ sub _load {
     require($path);
     $module_loaded = 1;
   } catch {
-    die $E->clone({ message => "Could not load $module: $_" });
+    ouch('RequireFailed', "Could not load $module: $_");
   };
   return $formatter->() if $module_loaded;
 }
 
-our %f = (
-  raw => sub {
-    $_[0];
+our $F = H->new({
+  raw => method($t) {
+    $t
   },
 
-  pod => sub {
-    my $t   = shift;
+  pod => method($t) {
     my $pod = _load('Pod::Simple::HTML', sub {
       my $pod = Pod::Simple::HTML->new;
       $pod->index(0);
@@ -35,15 +36,14 @@ our %f = (
     });
     my $out;
     $pod->output_string(\$out);
-    $pod->parse_string_document($t);
+    $pod->parse_string_document("=pod\n\n$t\n\n=cut\n");
     $out =~ s/^.*<!-- start doc -->//s;
     $out =~ s/<!-- end doc -->.*$//s;
     $out =~ s/^(.*%3A%3A.*)$/my $x = $1; ($x =~ m{indexItem}) ? 1 : $x =~ s{%3A%3A}{\/}g; $x/gme;
     return $out;
   },
 
-  textile => sub {
-    my $t = shift;
+  textile => method($t) {
     my $tt = _load('Text::Textile', sub {
       return Text::Textile->new(
         disable_html => 1
@@ -52,15 +52,14 @@ our %f = (
     return $tt->process($t);
   },
 
-  markdown => sub {
-    my $t  = shift;
+  markdown => method($t) {
     my $md = _load('Text::Markdown', sub {
       # TODO - figure out what options we want to set for markdown
       return Text::Markdown->new();
     });
     return $md->markdown($t);
   },
-);
+});
 
 1;
 

@@ -3,8 +3,10 @@ use base 'Exporter';
 use common::sense;
 use aliased 'Squatting::H';
 use Data::Page;
+use Rhetoric::Formatters;
 
-our @EXPORT_OK   = qw(now slug);
+our $F = $Rhetoric::Formatters::F;
+our @EXPORT_OK   = qw(now slug $F);
 our %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 # y m d h m s
