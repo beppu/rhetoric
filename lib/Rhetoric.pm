@@ -3,7 +3,6 @@ use common::sense;
 use aliased 'Squatting::H';
 use Squatting;
 use Try::Tiny;
-use Memoize;
 
 use Rhetoric::Helpers ':all';
 
@@ -62,7 +61,6 @@ sub init {
   $class->next::method();
 }
 
-memoize('storage');
 # Return an object that handles the storage for blog data based on
 # what $CONFIG{storage} dictates.
 sub storage {
@@ -82,6 +80,7 @@ use Method::Signatures::Simple;
 use Rhetoric::Helpers ':all';
 use Data::Dump 'pp';
 use Ouch;
+use Try::Tiny;
 
 our @C = (
 
@@ -113,6 +112,7 @@ our @C = (
     }
   ),
 
+  # XXX - replace with Rhetoric::Admin->squat('/admin')
   # Need to be able to create posts from a form too, right?!
   C(
     NewPost => [ '/post' ],
@@ -221,6 +221,8 @@ package Rhetoric::Views;
 use Method::Signatures::Simple;
 use Template;
 use Data::Dump 'pp';
+use XML::Atom::Feed;
+use XML::Atom::Entry;
 
 # $tt is going to have to be localized in a mass vhost environment
 our $tt = Template->new({
@@ -229,8 +231,15 @@ our $tt = Template->new({
 });
 
 our @V = (
+
   V(
-    'tt',
+    'BrownStone',
+    init => method($include_path) {
+      $self->{tt} = Template->new({
+        INCLUDE_PATH => $include_path,
+        POST_CHOMP   => 1,
+      });
+    },
     layout => method($v, $content) {
       my $output;
       $v->{R} = \&R;
@@ -246,7 +255,14 @@ our @V = (
       warn $r unless ($r);
       $output;
     },
-  )
+  ),
+
+  V(
+    'AtomFeed',
+    index => method($v) {
+    }
+  ),
+
 );
 
 1;
