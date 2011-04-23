@@ -15,6 +15,8 @@ requires 'Memoize'                    => 0;
 requires 'Method::Signatures::Simple' => 0;
 requires 'CGI'                        => '1.30';
 requires 'Data::Page'                 => 0;
+requires 'Ouch'                       => '0.03';
+requires 'Try::Tiny'                  => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
