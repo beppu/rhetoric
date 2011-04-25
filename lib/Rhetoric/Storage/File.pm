@@ -111,7 +111,9 @@ our $storage = H->new({
         second    => $s,
         author    => ( $Rhetoric::CONFIG{user} // getpwuid( (stat("$post_path/title"))[4] ) )[0],
       });
-      #$post->comments($self->comments($post));
+      my @comment_files = glob("$post_path/comments/*");
+      my $comment_count = scalar(@comment_files);
+      $post->comment_count($comment_count);
       return $post;
     } else {
       return undef;
