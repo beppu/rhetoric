@@ -42,6 +42,7 @@ sub service {
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
+  $v->{state}        = $c->state;
   if (exists $CONFIG{relocated}) {
     for (@{ $v->menu }) {
       $_->url($CONFIG{relocated} . $_->url);
@@ -129,9 +130,11 @@ our @C = (
         });
       }
       catch {
-        when (kiss('MissingTitle', $_)) { }
-        when (kiss('MissingBody',  $_)) { }
-        default {
+        if    (kiss('MissingTitle', $_)) {
+        }
+        elsif (kiss('MissingBody',  $_)) {
+        }
+        else  {
         }
       }
     },
@@ -149,6 +152,13 @@ our @C = (
       my $url     = $input->url;
       my $body    = $input->body;
       my $storage = $self->v->storage;
+      my $state   = $self->state;
+      warn pp $state;
+
+      $state->{name}    = $name;
+      $state->{email}   = $email;
+      $state->{url}     = $url;
+
       my $result;
       try {
         $result = $storage->new_comment($year, $month, $slug, {
@@ -159,16 +169,17 @@ our @C = (
         });
       }
       catch {
-        when (kiss('InvalidComment'),  $_) { }
-        default {
+        if (kiss('InvalidComment'),  $_) {
+          $self->state->{errors} = $_->data;
+        }
+        else {
           warn $_;
         }
       };
-      if ($result->success) {
+      if ($result && $result->success) {
         $self->redirect(R('Post', $year, $month, $slug));
       } else {
         # TODO - put errors in session
-        #$self->state->{errors} = $result->errors;
         $self->redirect(R('Post', $year, $month, $slug));
       }
     }

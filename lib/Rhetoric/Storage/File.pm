@@ -217,6 +217,14 @@ our $storage = H->new({
   #
   new_comment => method($year, $month, $slug, $comment) {
     ref($comment) eq 'HASH' && H->bless($comment);
+    my @errors;
+    push @errors, ['name']  if (not $comment->name);
+    push @errors, ['email'] if (not $comment->email);
+    push @errors, ['body']  if (not $comment->body);
+    if (@errors) {
+      ouch('InvalidComment', \@errors);
+    }
+
     my $post = $self->post($year, $month, $slug);
     my $root = $Rhetoric::CONFIG{'storage.file.path'};
     my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
