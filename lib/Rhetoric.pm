@@ -220,21 +220,16 @@ our @C = (
 package Rhetoric::Views;
 use Method::Signatures::Simple;
 use Template;
-use Data::Dump 'pp';
 use XML::Atom::Feed;
 use XML::Atom::Entry;
 
-# $tt is going to have to be localized in a mass vhost environment
-our $tt = Template->new({
-  INCLUDE_PATH => [ ".", './share/theme/BrownStone' ],
-  POST_CHOMP   => 1,
-});
+our $tt;
 
 our @V = (
 
   V(
     'BrownStone',
-    init => method($include_path) {
+    _init => method($include_path) {
       $self->{tt} = Template->new({
         INCLUDE_PATH => $include_path,
         POST_CHOMP   => 1,
@@ -242,16 +237,16 @@ our @V = (
     },
     layout => method($v, $content) {
       my $output;
-      $v->{R} = \&R;
+      $v->{R}       = \&R;
       $v->{content} = $content;
-      $tt->process('layout.html', $v, \$output);
+      $self->{tt}->process('layout.html', $v, \$output);
       $output;
     },
     _ => method($v) {
       my $file = "$self->{template}.html";
       my $output;
       $v->{R} = \&R;
-      my $r = $tt->process($file, $v, \$output);
+      my $r   = $self->{tt}->process($file, $v, \$output);
       warn $r unless ($r);
       $output;
     },
@@ -259,11 +254,15 @@ our @V = (
 
   V(
     'AtomFeed',
-    index => method($v) {
+    feed => method($v) {
+      my $feed = XML::Atom::Feed->new;
+      $feed->as_xml;
     }
   ),
 
 );
+
+$V[0]->_init([ ".", './share/theme/BrownStone' ]);
 
 1;
 
