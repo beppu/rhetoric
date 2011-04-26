@@ -5,6 +5,7 @@ use Squatting;
 use Try::Tiny;
 
 use Rhetoric::Helpers ':all';
+use Rhetoric::Widgets;
 
 our $VERSION = '0.01';
 
@@ -70,7 +71,10 @@ sub storage {
   my $path    = "Rhetoric/Storage/$impl.pm";
   my $package = "Rhetoric::Storage::$impl";
   require($path); # let it die if it fails.
-  return ${"${package}::storage"};
+  my $storage = ${"${package}::storage"};
+  $storage->extend($Rhetoric::Widgets::widgets);
+  $storage->init_widgets($CONFIG{'storage.file.path'});
+  $storage;
 }
 
 #_____________________________________________________________________________
@@ -191,7 +195,17 @@ our @C = (
       my $v       = $self->v;
       my $storage = $v->storage;
       ($v->{posts}, $v->{pager}) = $storage->category_posts($category);
-      $self->render('category');
+      $self->render('index');
+    }
+  ),
+
+  C(
+    Archive => [ '/archive/(\d+)/(\d+)' ],
+    get => method($year, $month) {
+      my $v       = $self->v;
+      my $storage = $v->storage;
+      ($v->{posts}, $v->{pager}) = $storage->archive_posts($year, $month);
+      $self->render('index');
     }
   ),
 

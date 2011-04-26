@@ -244,10 +244,12 @@ our $storage = H->new({
       $index = sprintf('%03d', $last + 1);
     }
     warn $index;
+    my $format = $comment->format || 'pod';
+    my $body   = $F->$format($comment->body);
     io("$post_path/comments/$index") <  $comment->name  . "\n";
     io("$post_path/comments/$index") << $comment->email . "\n";
     io("$post_path/comments/$index") << $comment->url   . "\n";
-    io("$post_path/comments/$index") << $comment->body  . "\n";
+    io("$post_path/comments/$index") << $body           . "\n";
     $comment->success(1);
     $comment;
   },
