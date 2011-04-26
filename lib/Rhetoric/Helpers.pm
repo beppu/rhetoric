@@ -24,6 +24,7 @@ sub now {
 
 # make a url-friendly slug out of a post title
 sub slug {
+  # FIXME - protect against duplicate y-m-slug combinations
   my $title = shift;
   $title =~ s/^\W+//;
   $title =~ s/\W+$//;
