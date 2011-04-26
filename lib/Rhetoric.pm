@@ -11,12 +11,20 @@ our $VERSION = '0.01';
 
 # global config for our blogging app
 our %CONFIG = (
+  'base'                => undef,                 # config directory
   'user'                => undef,                 # used for rhetoric.al accounts but otherwise optional
   'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'time_format'         => '%b %e, %Y %I:%M%P',
+  'archive_format'      => '%b %Y',               # TODO - use this!
   'posts_per_page'      => 8,
   'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '/tmp/rhetoric',
+
+  # TODO
+  'storage.couchdb.url'    => undef,
+  'storage.mysql.connect'  => undef,              # connect string suitable for DBI->connect
+  'storage.mysql.user'     => undef,
+  'storage.mysql.password' => undef,
 );
 
 # TODO - divorce Continuity
@@ -33,21 +41,27 @@ sub continue {
 # service() is run on every request (just like in Camping).
 sub service {
   my ($class, $c, @args) = @_;
+  $c->view = $CONFIG{theme};
   my $v = $c->v;
-  my $s = $v->{storage} = storage($CONFIG{storage});
+  my $s = $c->env->{storage} = storage($CONFIG{storage});
   H->bless($v);
   H->bless($c->input);
+  H->bless($c->env);
   $v->{title}        = $s->meta('title');
   $v->{subtitle}     = $s->meta('subtitle');
   $v->{description}  = $s->meta('description');
+  $v->{copy}         = $s->meta('copy');
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
-  $v->{state}        = $c->state;
+  $v->{state}        = $c->state; # XXX - Should Squatting be doing this automatically?
   if (exists $CONFIG{relocated}) {
     for (@{ $v->menu }) {
       $_->url($CONFIG{relocated} . $_->url);
     }
+  }
+  for my $position ($s->widgets->positions) {
+    $v->{widgets}{$position} = [ $s->widgets->content_for($position, $c, @args) ];
   }
   $class->next::method($c, @args);
 }
@@ -72,9 +86,14 @@ sub storage {
   my $package = "Rhetoric::Storage::$impl";
   require($path); # let it die if it fails.
   my $storage = ${"${package}::storage"};
-  $storage->extend($Rhetoric::Widgets::widgets);
-  $storage->init_widgets($CONFIG{'storage.file.path'});
+  my $widgets = $Rhetoric::Widgets::widgets;
+  $widgets->init($CONFIG{'storage.file.path'});  # XXX - should be $CONFIG{base} 
+                                                 # although $CONFIG{base} 
+                                                 # and      $CONFIG{'storage.file.path'} 
+                                                 # will often be the same.  Hmm...
+  $storage->widgets($widgets);
   $storage;
+  # XXX - s/\$storage/\$blog/;
 }
 
 #_____________________________________________________________________________
@@ -93,7 +112,7 @@ our @C = (
     Home => [ '/', '/page/(\d+)' ],
     get => method($page) {
       my $v       = $self->v;
-      my $storage = $v->storage;
+      my $storage = $self->env->storage;
       $page //= 1;
       ($v->{posts}, $v->{pager}) = $storage->posts($CONFIG{posts_per_page}, $page);
       $self->render('index');
@@ -104,14 +123,14 @@ our @C = (
     Post => [ '/(\d+)/(\d+)/([\w-]+)' ],
     get => method($year, $month, $slug) {
       my $v          = $self->v;
-      my $storage    = $v->storage;
+      my $storage    = $self->env->storage;
       $v->{post}     = $storage->post($year, $month, $slug);
       $v->{comments} = $storage->comments($v->{post});
       $self->render('post');
     },
     post => method($year, $month, $slug) {
       my $v       = $self->v;
-      my $storage = $v->storage;
+      my $storage = $self->env->storage;
       my $post    = $v->{post} = $storage->post($year, $month, $slug);
       # XXX - modify post and redirect
     }
@@ -125,7 +144,7 @@ our @C = (
       $self->render('new_post');
     },
     post => method {
-      my $storage = $self->v->storage;
+      my $storage = $self->env->storage;
       my $input   = $self->input;
       try {
         $storage->new_post({
@@ -155,7 +174,7 @@ our @C = (
       my $email   = $input->email;
       my $url     = $input->url;
       my $body    = $input->body;
-      my $storage = $self->v->storage;
+      my $storage = $self->env->storage;
       my $state   = $self->state;
       warn pp $state;
 
@@ -193,7 +212,7 @@ our @C = (
     Category => [ '/category/([\w-]+)' ],
     get => method($category) {
       my $v       = $self->v;
-      my $storage = $v->storage;
+      my $storage = $self->env->storage;
       ($v->{posts}, $v->{pager}) = $storage->category_posts($category);
       $self->render('index');
     }
@@ -203,7 +222,7 @@ our @C = (
     Archive => [ '/archive/(\d+)/(\d+)' ],
     get => method($year, $month) {
       my $v       = $self->v;
-      my $storage = $v->storage;
+      my $storage = $self->env->storage;
       ($v->{posts}, $v->{pager}) = $storage->archive_posts($year, $month);
       $self->render('index');
     }
@@ -247,35 +266,14 @@ use Method::Signatures::Simple;
 use Template;
 use XML::Atom::Feed;
 use XML::Atom::Entry;
+use Module::Find;
 
-our $tt;
+our @themes = usesub 'Rhetoric::Theme';
 
 our @V = (
 
-  V(
-    'BrownStone',
-    _init => method($include_path) {
-      $self->{tt} = Template->new({
-        INCLUDE_PATH => $include_path,
-        POST_CHOMP   => 1,
-      });
-    },
-    layout => method($v, $content) {
-      my $output;
-      $v->{R}       = \&R;
-      $v->{content} = $content;
-      $self->{tt}->process('layout.html', $v, \$output);
-      $output;
-    },
-    _ => method($v) {
-      my $file = "$self->{template}.html";
-      my $output;
-      $v->{R} = \&R;
-      my $r   = $self->{tt}->process($file, $v, \$output);
-      warn $r unless ($r);
-      $output;
-    },
-  ),
+  $Rhetoric::Theme::BrownStone::view,
+  $Rhetoric::Theme::SandStone::view,
 
   V(
     'AtomFeed',
@@ -287,7 +285,9 @@ our @V = (
 
 );
 
+# FIXME - How do I not hardcode this shit?
 $V[0]->_init([ ".", './share/theme/BrownStone' ]);
+$V[1]->_init([ ".", './share/theme/SandStone' ]);
 
 1;
 

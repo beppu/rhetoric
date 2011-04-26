@@ -17,6 +17,8 @@ requires 'CGI'                        => '1.30';
 requires 'Data::Page'                 => 0;
 requires 'Ouch'                       => '0.03';
 requires 'Try::Tiny'                  => 0;
+requires 'XML::Atom'                  => 0;
+requires 'Module::Find'               => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
