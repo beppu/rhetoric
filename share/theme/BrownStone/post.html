@@ -30,11 +30,11 @@
               <input type="hidden" name="month" value="[% post.month %]" />
               <input type="hidden" name="slug"  value="[% post.slug  %]" />
               <h3>Name</h3>
-              <input type="text" name="name" value="[% state.name %]" />
+              <input type="text" name="name" value="[% state.name | html %]" />
               <h3>Email</h3>
-              <input type="text" name="email" value="[% state.email %]" />
+              <input type="text" name="email" value="[% state.email | html %]" />
               <h3>URL</h3>
-              <input type="text" name="url" value="[% state.url %]" />
+              <input type="text" name="url" value="[% state.url | html %]" />
               <h3>Comment</h3>
               <textarea name="body" rows="8" cols="40"></textarea>
               <div>
