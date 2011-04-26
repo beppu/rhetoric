@@ -28,7 +28,7 @@ our $storage = H->new({
     io("$root/subtitle")    < "Simple Blogging for Perl"                   unless (-e "$root/subtitle");
     # XXX - going to move description into a sidebar module
     io("$root/description") < "STOP MAKING SHIT SO GOD DAMNED COMPLICATED" unless (-e "$root/description");
-    io("$root/pages")       < "about\nlinks\ncontact\n"                    unless (-e "$root/pages");
+    $self->meta('copy' => "COPYRIGHT (C) 2011 SOMESITE.COM.  ALL RIGHTS RESERVED") unless (-e "$root/copy");
     return 1;
   },
 
@@ -148,12 +148,21 @@ our $storage = H->new({
 
   # TODO - figure out how I should store category information
   categories => method {
-    []
+    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $category_path = "$root/categories";
+    my @c = sort (
+      map { basename($_) }
+      File::Find::Rule
+        ->directory()
+        ->mindepth(1)
+        ->maxdepth(1)
+        ->in($category_path)
+    );
   },
 
   # TODO - list of category posts
   category_posts => method($category) {
-    []
+    ([], undef);
   },
 
   #
@@ -189,6 +198,7 @@ our $storage = H->new({
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
     } @all_posts;
+    (\@posts, undef);
   },
 
   #
