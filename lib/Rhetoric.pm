@@ -6,22 +6,26 @@ use Try::Tiny;
 
 use Rhetoric::Helpers ':all';
 use Rhetoric::Widgets;
+use Rhetoric::Meta;
 
 our $VERSION = '0.01';
 
 # global config for our blogging app
 our %CONFIG = (
-  'base'                => undef,                 # config directory
+  'base'                => '.',                   # config directory - metadata, menus, widgets, pages
   'user'                => undef,                 # used for rhetoric.al accounts but otherwise optional
-  'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'time_format'         => '%b %e, %Y %I:%M%P',
-  'archive_format'      => '%b %Y',               # TODO - use this!
+  'archive_format'      => '%B %Y',               # TODO - use this!
   'posts_per_page'      => 8,
-  'storage'             => 'File',                # Rhetoric::Storage::____
-  'storage.file.path'   => '/tmp/rhetoric',
 
+  'theme'               => 'BrownStone',          # Rhetoric::Theme::____
+  'theme.base'          => './share/theme',
+
+  'storage'             => 'File',                # Rhetoric::Storage::____
+  'storage.file.path'   => '.',
   # TODO
-  'storage.couchdb.url'    => undef,
+  'storage.couchdb.url'    => undef,              # URL for CouchDB database
+  # TODO
   'storage.mysql.connect'  => undef,              # connect string suitable for DBI->connect
   'storage.mysql.user'     => undef,
   'storage.mysql.password' => undef,
@@ -41,7 +45,7 @@ sub continue {
 # service() is run on every request (just like in Camping).
 sub service {
   my ($class, $c, @args) = @_;
-  $c->view = $CONFIG{theme};
+  $c->view = $c->state->{theme} // $CONFIG{theme};
   my $v = $c->v;
   my $s = $c->env->{storage} = storage($CONFIG{storage});
   H->bless($v);
@@ -59,6 +63,7 @@ sub service {
     for (@{ $v->menu }) {
       $_->url($CONFIG{relocated} . $_->url);
     }
+    $v->{relocated} = $CONFIG{relocated};
   }
   for my $position ($s->widgets->positions) {
     $v->{widgets}{$position} = [ $s->widgets->content_for($position, $c, @args) ];
@@ -68,12 +73,17 @@ sub service {
 
 sub init {
   my ($class) = @_;
+
   # TODO - Make absolutely sure the Page controller is at $C[-1].
   if ($Rhetoric::Controllers::C[-1]->name ne 'Page') {
     # find index of Page controller
     # splice it out
     # push it back on to the end
   }
+
+  # view initialization
+  Rhetoric::Views::init();
+
   $class->next::method();
 }
 
@@ -85,15 +95,25 @@ sub storage {
   my $path    = "Rhetoric/Storage/$impl.pm";
   my $package = "Rhetoric::Storage::$impl";
   require($path); # let it die if it fails.
+
+  # the stuff that's ALWAYS in the filesystem (besides widgets)
+  # menus and pages might get split out later
+  my $meta = $Rhetoric::Meta::meta;
+
+  # where posts and comments are stored
   my $storage = ${"${package}::storage"};
+  $storage->init(\%CONFIG);
+
+  # widgets
   my $widgets = $Rhetoric::Widgets::widgets;
-  $widgets->init($CONFIG{'storage.file.path'});  # XXX - should be $CONFIG{base} 
-                                                 # although $CONFIG{base} 
-                                                 # and      $CONFIG{'storage.file.path'} 
-                                                 # will often be the same.  Hmm...
-  $storage->widgets($widgets);
-  $storage;
-  # XXX - s/\$storage/\$blog/;
+  $widgets->init(\%CONFIG);
+
+  my $blog = H->new({
+    base    => $CONFIG{base},
+    widgets => $widgets,
+    %$meta,
+    %$storage,
+  });
 }
 
 #_____________________________________________________________________________
@@ -199,12 +219,7 @@ our @C = (
           warn $_;
         }
       };
-      if ($result && $result->success) {
-        $self->redirect(R('Post', $year, $month, $slug));
-      } else {
-        # TODO - put errors in session
-        $self->redirect(R('Post', $year, $month, $slug));
-      }
+      $self->redirect(R('Post', $year, $month, $slug));
     }
   ),
 
@@ -238,9 +253,13 @@ our @C = (
   ),
 
   C(
-    Theme => [ '/theme' ],
-    get => method {
-      return $self->env->{HTTP_HOST} . " => $CONFIG{theme}\n";
+    Theme => [ '/theme', '/theme/(.*)' ],
+    get => method($name) {
+      if ($name) {
+        $self->state->{theme} = $name;
+      }
+      return $self->env->{HTTP_HOST} . " => " . 
+        ($self->state->{theme} // $CONFIG{theme}) . "\n";
     }
   ),
 
@@ -262,18 +281,20 @@ our @C = (
 
 #_____________________________________________________________________________
 package Rhetoric::Views;
+use common::sense;
 use Method::Signatures::Simple;
 use Template;
 use XML::Atom::Feed;
 use XML::Atom::Entry;
 use Module::Find;
 
+*CONFIG = \%Rhetoric::CONFIG;
+
 our @themes = usesub 'Rhetoric::Theme';
 
 our @V = (
 
-  $Rhetoric::Theme::BrownStone::view,
-  $Rhetoric::Theme::SandStone::view,
+  (map { $_->view } @themes),
 
   V(
     'AtomFeed',
@@ -285,9 +306,14 @@ our @V = (
 
 );
 
-# FIXME - How do I not hardcode this shit?
-$V[0]->_init([ ".", './share/theme/BrownStone' ]);
-$V[1]->_init([ ".", './share/theme/SandStone' ]);
+sub init {
+  my $i = 0;
+  for my $name (@themes) {
+    $name =~ s/^.*::(\w*)$/$1/;
+    $V[$i]->_init([ "$CONFIG{'base'}/pages", "$CONFIG{'theme.base'}/$name" ]);
+    $i++;
+  }
+}
 
 1;
 

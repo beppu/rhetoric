@@ -17,8 +17,15 @@ use Rhetoric::Helpers ':all';
 *mk = *File::Path::Tiny::mk;
 
 our $storage = H->new({
-  init => method {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+
+  init => method($config) {
+    $self->root($config->{'storage.file.path'});
+    $self->archive_format($config->{'archive_format'});
+    $self;
+  },
+
+  install => method {
+    my $root = $self->root;
     mk("$root/posts");
     mk("$root/menu");
     mk("$root/sidebar");
@@ -33,11 +40,11 @@ our $storage = H->new({
   },
 
   meta => method($k, $v) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     if (defined($v)) {
-      io("$root/$k") < $v;
+      io("$root/$k") < "$v\n"; # newline for easier text editing by humans
     } else {
-      $v < io("$root/$k");
+      $v = io("$root/$k")->chomp->getline;
     }
     return $v;
   },
@@ -63,7 +70,7 @@ our $storage = H->new({
       minute => $m,
       second => $s,
     );
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $post_path = sprintf("$root/posts/%d/%02d/%02d/%02d/%02d/%02d", $Y, $M, $D, $h, $m, $s);
     mk($post_path);
     io("$post_path/title")  < $title;
@@ -81,7 +88,7 @@ our $storage = H->new({
 
   # fetch a post
   post => method($y, $m, $slug) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $partial_post_path = "$root/posts/$y/$m";
     my @files = File::Find::Rule
       ->file()
@@ -123,7 +130,7 @@ our $storage = H->new({
   # FIXME - This implementation is not efficient,
   # FIXME   because it scans the entire post history every time.
   posts => method($count, $page) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my @all_posts = reverse sort (
       File::Find::Rule
         ->file()
@@ -146,9 +153,8 @@ our $storage = H->new({
     return (\@posts, $pager);
   },
 
-  # TODO - figure out how I should store category information
   categories => method {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $category_path = "$root/categories";
     my @c = sort (
       map { basename($_) }
@@ -167,25 +173,34 @@ our $storage = H->new({
 
   #
   archives => method {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $post_path = "$root/posts";
     my @d = reverse sort (
       File::Find::Rule
         ->directory()
+        ->mindepth(2)
         ->maxdepth(2)
         ->in($post_path)
     );
-    my @ad = grep { scalar(@$_) == 2 } map {
+    my @ad = map {
       my $path = $_;
       $path =~ s/^$post_path\///;
-      [ split('/', $path) ]
+      my ($year, $month) = split('/', $path);
+      my $name = DateTime
+        ->new(year => $year, month => $month)
+        ->strftime($self->archive_format);
+      my $archive = {
+        year  => $year,
+        month => $month,
+        name  => $name,
+      }
     } @d;
     @ad;
   },
 
   # 
   archive_posts => method($y, $m) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my @all_posts = reverse sort (
       File::Find::Rule
         ->file()
@@ -203,7 +218,7 @@ our $storage = H->new({
 
   #
   comments => method($post) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
       $root,
       $post->year, $post->month,  $post->day,
@@ -236,7 +251,7 @@ our $storage = H->new({
     }
 
     my $post = $self->post($year, $month, $slug);
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $post_path = sprintf('%s/posts/%s/%s/%s/%s/%s/%s',
       $root,
       $post->year, $post->month,  $post->day,
@@ -266,7 +281,7 @@ our $storage = H->new({
 
   #
   menu => method($menu) {
-    my $root = $Rhetoric::CONFIG{'storage.file.path'};
+    my $root = $self->root;
     my $menu_path = "$root/menu";
     if (defined($menu)) {
       my $i = 1;

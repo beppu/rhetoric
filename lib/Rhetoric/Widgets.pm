@@ -12,8 +12,8 @@ our $widgets = H->new({
   base => '',
 
   # initialize the $widget object
-  init => method($path) {
-    $self->base($path);
+  init => method($config) {
+    $self->base($config->{base});
   },
 
   # return a list of all positions defined by blog metadata
