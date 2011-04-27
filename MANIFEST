@@ -1,6 +1,9 @@
+.shipit
 bin/rh
 bin/rh-export
+bin/rh-import-themes
 bin/rh-init
+bin/rh-psgi
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
