@@ -21,6 +21,9 @@ our %CONFIG = (
   'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'theme.base'          => './share/theme',
 
+  'login'               => 'admin',
+  'password'            => 'admin',
+
   'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '.',
   # TODO
@@ -141,8 +144,22 @@ use aliased 'Squatting::H';
 use Method::Signatures::Simple;
 use Rhetoric::Helpers ':all';
 use Data::Dump 'pp';
+use MIME::Base64;
 use Ouch;
 use Try::Tiny;
+
+sub authorized {
+  my $self = shift;
+  return undef unless defined $self->env->{HTTP_AUTHORIZATION};
+  my $auth = $self->env->{HTTP_AUTHORIZATION};
+  $auth =~ s/Basic\s*//;
+  my $login_pass =  encode_base64("$CONFIG{login}:$CONFIG{password}", '');
+  if ($auth eq $login_pass) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 our @C = (
 
@@ -175,29 +192,37 @@ our @C = (
   ),
 
   # XXX - replace with Rhetoric::Admin->squat('/admin')
-  # Need to be able to create posts from a form too, right?!
   C(
-    NewPost => [ '/post' ],
+    NewPost => [ '/admin' ],
     get => method {
+      if (not authorized($self)) {
+        $self->redirect(R('Home'));
+        return;
+      }
       $self->render('new_post');
     },
     post => method {
+      if (not authorized($self)) {
+        $self->redirect(R('Home'));
+        return;
+      }
       my $storage = $self->env->storage;
       my $input   = $self->input;
       try {
         $storage->new_post({
-          title => $input->title,
-          body  => $input->body,
+          title  => $input->title,
+          body   => $input->body,
+          format => $input->format,
         });
       }
       catch {
-        if    (kiss('MissingTitle', $_)) {
+        if (kiss('InvalidPost', $_)) {
+          $self->state->{errors} = $_->data;
         }
-        elsif (kiss('MissingBody',  $_)) {
-        }
-        else  {
+        else {
         }
       }
+      $self->redirect(R('NewPost'));
     },
   ),
 
