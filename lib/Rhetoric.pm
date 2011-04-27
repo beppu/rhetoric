@@ -20,6 +20,7 @@ our %CONFIG = (
 
   'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'theme.base'          => './share/theme',
+  'continuity_docroot'  => 'share',
 
   'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '.',
@@ -29,6 +30,9 @@ our %CONFIG = (
   'storage.mysql.connect'  => undef,              # connect string suitable for DBI->connect
   'storage.mysql.user'     => undef,
   'storage.mysql.password' => undef,
+
+  # just for continuity
+  docroot => 'share',
 );
 
 # TODO - divorce Continuity
@@ -36,7 +40,7 @@ our %CONFIG = (
 sub continue {
   my $app = shift;
   $app->next::method(
-    docroot => "share", 
+    docroot => $CONFIG{'docroot'}, 
     staticp => sub { $_[0]->url =~ m/\.(jpg|jpeg|gif|png|css|ico|js|swf)$/ },
     @_
   );
@@ -51,9 +55,9 @@ sub service {
   H->bless($v);
   H->bless($c->input);
   H->bless($c->env);
+  H->bless($c->state);
   $v->{title}        = $s->meta('title');
   $v->{subtitle}     = $s->meta('subtitle');
-  $v->{description}  = $s->meta('description');
   $v->{copy}         = $s->meta('copy');
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
@@ -253,7 +257,7 @@ our @C = (
   ),
 
   C(
-    Theme => [ '/theme', '/theme/(.*)' ],
+    Theme => [ '/t', '/t/(.*)' ],
     get => method($name) {
       if ($name) {
         $self->state->{theme} = $name;

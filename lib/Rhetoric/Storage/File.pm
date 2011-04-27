@@ -4,6 +4,7 @@ use aliased 'Squatting::H';
 
 use Data::Dump 'pp';
 use DateTime;
+use Cwd;
 use File::Copy;
 use File::Basename;
 use File::Find::Rule;
@@ -46,12 +47,15 @@ our $storage = H->new({
 
     # TODO - Move this to Rhetoric::Meta
     #mk("$root/widgets");
-    system("cp -R '$share/widgets' '$root/widgets'");
-    symlink("00_init.pl",       "$root/widgets/sidebar/init.pl");
-    symlink("01_search.pl",     "$root/widgets/sidebar/search.pl");
-    symlink("02_about.pl",      "$root/widgets/sidebar/content.pl");
-    symlink("03_categories.pl", "$root/widgets/sidebar/categories.pl");
-    symlink("04_archives.pl",   "$root/widgets/sidebar/archives.pl");
+    system("rsync -a '$share/widgets/' '$root/widgets/'");
+    my $cwd = getcwd;
+    chdir "$root/widgets/sidebar";
+    symlink("init.pl",       "00_init.pl");
+    symlink("search.pl",     "01_search.pl");
+    symlink("content.pl",    "02_about.pl");
+    symlink("categories.pl", "03_categories.pl");
+    symlink("archives.pl",   "04_archives.pl");
+    chdir $cwd;
 
     # TODO - Move this to Rhetoric::Meta
     $self->meta(title    => "Rhetoric")                                              unless (-e "$root/title");

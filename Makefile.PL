@@ -23,6 +23,8 @@ requires 'Module::Find'               => 0;
 install_script 'bin/rh';
 install_script 'bin/rh-init';
 install_script 'bin/rh-export';
+install_script 'bin/rh-import-themes';
+install_script 'bin/rh-psgi';
 
 install_share 'share';
 

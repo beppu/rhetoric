@@ -1,0 +1,45 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use Rhetoric;
+use Template;
+use Cwd;
+
+my $tt     = Template->new({ POST_CHOMP => 1 });
+my $cwd    = getcwd;
+my $config = {
+  base       => $cwd,
+  theme_base => "$cwd/theme",
+};
+$tt->process(\*DATA, $config);
+
+__DATA__
+#!/usr/bin/env perl
+use Plack;
+use Plack::Builder;
+use Rhetoric 'On::PSGI';
+%Rhetoric::CONFIG = (
+  'base'                => '[% base %]',
+  'user'                => undef,                 # (optional) name of blog owner
+  'time_format'         => '%b %e, %Y %I:%M%P',
+  'archive_format'      => '%B %Y',
+  'posts_per_page'      => 4,
+
+  'theme'               => 'BrownStone',          # Rhetoric::Theme::____
+  'theme.base'          => '[% theme_base %]',
+
+  'storage'             => 'File',                # Rhetoric::Storage::____
+  'storage.file.path'   => '[% base %]',
+);
+Rhetoric->init();
+
+my $app = sub {
+  my $env = shift;
+  Rhetoric->psgi($env);
+};
+
+builder {
+  enable 'Session::Cookie';
+  enable 'Static', path => qr{/theme};
+  $app;
+};
