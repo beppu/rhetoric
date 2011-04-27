@@ -4,6 +4,7 @@ bin/rh-export
 bin/rh-import-themes
 bin/rh-init
 bin/rh-psgi
+Changes
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -26,9 +27,7 @@ lib/Rhetoric/Widgets.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
-notes
 README
-rhetoric
 share/menu/01_Home
 share/menu/02_Photos
 share/menu/03_About
