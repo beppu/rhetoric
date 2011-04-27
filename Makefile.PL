@@ -5,7 +5,7 @@ all_from 'lib/Rhetoric.pm';
 
 requires 'aliased'                    => 0;
 requires 'common::sense'              => 0;
-requires 'Squatting'                  => '0.80';
+requires 'Squatting'                  => '0.81';
 requires 'File::Find::Rule'           => 0;
 requires 'File::Path::Tiny'           => 0;
 requires 'File::Which'                => 0;
