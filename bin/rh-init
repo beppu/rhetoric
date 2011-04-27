@@ -3,5 +3,5 @@
 use common::sense;
 use Rhetoric;
 
-my $s = Rhetoric::storage;
-$s->init;
+my $blog = Rhetoric::blog();
+$blog->install;

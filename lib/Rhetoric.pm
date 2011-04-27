@@ -323,22 +323,31 @@ Rhetoric - a simple blogging system for perl
 
 =head1 SYNOPSIS
 
-Running a blog
+Setting up a blog
 
-  $ squatting Rhetoric
+  mkdir -p /var/www/myblog.org
+  cd /var/www/myblog.org
+  rh init
 
-Playing with the interactive console
+Running the blog
 
-  $ squatting -C Rhetoric
-    \%Rhetoric::CONFIG
-    $s = Rhetoric::storage()
-    $s->metadata('title');
-    $s->recent_posts()
-
+  plackup rhetoric.psgi
 
 =head1 DESCRIPTION
 
-A simple and straight-forward blogging system for Perl.
+Rhetoric is a simple CPAN-friendly blogging system for Perl.
+
+It's simple because...
+
+It's CPAN-friendly because:
+
+=over 4
+
+=item * You can install it from CPAN and setup a blog in minutes.
+
+=item * Themes can also be installed from CPAN.
+
+=back
 
 =head1 API
 
@@ -385,7 +394,15 @@ A simple and straight-forward blogging system for Perl.
 
 
 
-=head2 EverythingElse
+=head2 Archive
+
+/archive/(\d+)/(\d+)
+
+=head3 get
+
+
+
+=head2 Page
 
 /(.*)
 
@@ -400,6 +417,6 @@ John BEPPU E<lt>beppu@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-GPL
+MIT
 
 =cut

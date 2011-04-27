@@ -4,9 +4,11 @@ use aliased 'Squatting::H';
 
 use Data::Dump 'pp';
 use DateTime;
+use File::Copy;
 use File::Basename;
 use File::Find::Rule;
 use File::Path::Tiny;
+use File::ShareDir ':ALL';
 use IO::All;
 use Method::Signatures::Simple;
 use Ouch;
@@ -27,15 +29,34 @@ our $storage = H->new({
   install => method {
     my $root = $self->root;
     mk("$root/posts");
+    mk("$root/categories");
+    mk("$root/categories/Perl");
+
+    my $share = File::ShareDir::dist_dir('Rhetoric');
+
+    # TODO - Don't use system()
+
+    # TODO - Move this to Rhetoric::Meta
     mk("$root/menu");
-    mk("$root/sidebar");
-    # metadata
-    # TODO - use the meta method instead of using io directly
-    io("$root/title")       < "Rhetoric"                                   unless (-e "$root/title");
-    io("$root/subtitle")    < "Simple Blogging for Perl"                   unless (-e "$root/subtitle");
-    # XXX - going to move description into a sidebar module
-    io("$root/description") < "STOP MAKING SHIT SO GOD DAMNED COMPLICATED" unless (-e "$root/description");
-    $self->meta('copy' => "COPYRIGHT (C) 2011 SOMESITE.COM.  ALL RIGHTS RESERVED") unless (-e "$root/copy");
+    system("cp '$share/menu/'* '$root/menu'");
+
+    # TODO - Move this to Rhetoric::Meta
+    mk("$root/pages");
+    system("cp '$share/pages/'* '$root/pages'");
+
+    # TODO - Move this to Rhetoric::Meta
+    #mk("$root/widgets");
+    system("cp -R '$share/widgets' '$root/widgets'");
+    symlink("00_init.pl",       "$root/widgets/sidebar/init.pl");
+    symlink("01_search.pl",     "$root/widgets/sidebar/search.pl");
+    symlink("02_about.pl",      "$root/widgets/sidebar/content.pl");
+    symlink("03_categories.pl", "$root/widgets/sidebar/categories.pl");
+    symlink("04_archives.pl",   "$root/widgets/sidebar/archives.pl");
+
+    # TODO - Move this to Rhetoric::Meta
+    $self->meta(title    => "Rhetoric")                                              unless (-e "$root/title");
+    $self->meta(subtitle => "Simple Blogging for Perl")                              unless (-e "$root/subtitle");
+    $self->meta('copy'   => "COPYRIGHT (C) 2011 SOMESITE.COM.  ALL RIGHTS RESERVED") unless (-e "$root/copy");
     return 1;
   },
 
