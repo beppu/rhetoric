@@ -31,4 +31,6 @@ our $view = Squatting::View->new(
   },
 );
 
+sub view { $view }
+
 1;
