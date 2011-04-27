@@ -1,3 +1,11 @@
 
+0.02 Wed Apr 27 15:11:36 PDT 2011
+  - slightly less horrible
+  - added a missing dependency on Squatting::On::PSGI thanks to Mateu
+  - You can create posts from ze web.  amazing...
+    goto /admin -- the login is in %CONFIG
+  - rh-export is so bad but it works
+    you can statically export the site
+
 0.01 Wed Apr 27 04:41:15 PDT 2011
   - initial release of horror
