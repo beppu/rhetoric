@@ -19,6 +19,7 @@ requires 'Ouch'                       => '0.03';
 requires 'Try::Tiny'                  => 0;
 requires 'XML::Atom'                  => 0;
 requires 'Module::Find'               => 0;
+requires 'Squatting::On::PSGI'        => '0.05';
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
