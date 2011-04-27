@@ -214,11 +214,11 @@ our $storage = H->new({
       my $name = DateTime
         ->new(year => $year, month => $month)
         ->strftime($self->archive_format);
-      my $archive = {
+      my $archive = H->new({
         year  => $year,
         month => $month,
         name  => $name,
-      }
+      });
     } @d;
     @ad;
   },

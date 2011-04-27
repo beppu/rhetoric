@@ -20,7 +20,6 @@ our %CONFIG = (
 
   'theme'               => 'BrownStone',          # Rhetoric::Theme::____
   'theme.base'          => './share/theme',
-  'continuity_docroot'  => 'share',
 
   'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '.',
@@ -55,7 +54,6 @@ sub service {
   H->bless($v);
   H->bless($c->input);
   H->bless($c->env);
-  H->bless($c->state);
   $v->{title}        = $s->meta('title');
   $v->{subtitle}     = $s->meta('subtitle');
   $v->{copy}         = $s->meta('copy');
@@ -63,6 +61,22 @@ sub service {
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
   $v->{state}        = $c->state; # XXX - Should Squatting be doing this automatically?
+
+  # hack to help rh-export
+  if ($c->state->{mock_request}) {
+    # the RIGHT THING(tm) would be to change how we store menu information.
+    # I suppose I need to support perl expressions in there instead of
+    # just strings.
+    # FIXME
+    for my $menu (@{$v->{menu}}) {
+      my $href = $menu->url;
+      if (($href !~ qr{^https?:}) && ($href !~ qr{\.html$}) && ($href ne '/')) {
+        $href .= ".html";
+        $menu->url($href);
+      }
+    }
+  }
+
   if (exists $CONFIG{relocated}) {
     for (@{ $v->menu }) {
       $_->url($CONFIG{relocated} . $_->url);
