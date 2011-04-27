@@ -153,7 +153,9 @@ sub authorized {
   return undef unless defined $self->env->{HTTP_AUTHORIZATION};
   my $auth = $self->env->{HTTP_AUTHORIZATION};
   $auth =~ s/Basic\s*//;
+  warn $auth;
   my $login_pass =  encode_base64("$CONFIG{login}:$CONFIG{password}", '');
+  warn $login_pass;
   if ($auth eq $login_pass) {
     return 1;
   } else {
@@ -195,34 +197,36 @@ our @C = (
   C(
     NewPost => [ '/admin' ],
     get => method {
-      if (not authorized($self)) {
-        $self->redirect(R('Home'));
-        return;
+      if (authorized($self)) {
+        $self->render('new_post');
+      } else {
+        $self->status = 401;
+        $self->headers->{'WWW-Authenticate'} = 'Basic realm="Secret"';
+        "auth yourself";
       }
-      $self->render('new_post');
     },
     post => method {
-      if (not authorized($self)) {
+      if (authorized($self)) {
+        my $storage = $self->env->storage;
+        my $input   = $self->input;
+        try {
+          $storage->new_post({
+            title  => $input->title,
+            body   => $input->body,
+            format => $input->format,
+          });
+        }
+        catch {
+          if (kiss('InvalidPost', $_)) {
+            $self->state->{errors} = $_->data;
+          }
+          else {
+          }
+        };
+        $self->redirect(R('NewPost'));
+      } else {
         $self->redirect(R('Home'));
-        return;
       }
-      my $storage = $self->env->storage;
-      my $input   = $self->input;
-      try {
-        $storage->new_post({
-          title  => $input->title,
-          body   => $input->body,
-          format => $input->format,
-        });
-      }
-      catch {
-        if (kiss('InvalidPost', $_)) {
-          $self->state->{errors} = $_->data;
-        }
-        else {
-        }
-      }
-      $self->redirect(R('NewPost'));
     },
   ),
 

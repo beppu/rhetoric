@@ -19,13 +19,16 @@ use Plack;
 use Plack::Builder;
 use Rhetoric 'On::PSGI';
 %Rhetoric::CONFIG = (
+  %Rhetoric::CONFIG,
   'base'                => '[% base %]',
   'user'                => undef,                 # (optional) name of blog owner
   'time_format'         => '%b %e, %Y %I:%M%P',
   'archive_format'      => '%B %Y',
   'posts_per_page'      => 4,
+  'login'               => 'admin',
+  'password'            => 'admin',
 
-  'theme'               => 'BrownStone',          # Rhetoric::Theme::____
+  'theme'               => 'BrownStone',
   'theme.base'          => '[% theme_base %]',
 
   'storage'             => 'File',                # Rhetoric::Storage::____
