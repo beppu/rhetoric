@@ -39,7 +39,7 @@ our $F = H->new({
     $pod->parse_string_document("=pod\n\n$t\n\n=cut\n");
     $out =~ s/^.*<!-- start doc -->//s;
     $out =~ s/<!-- end doc -->.*$//s;
-    $out =~ s/^(.*%3A%3A.*)$/my $x = $1; ($x =~ m{indexItem}) ? 1 : $x =~ s{%3A%3A}{\/}g; $x/gme;
+    #$out =~ s/^(.*%3A%3A.*)$/my $x = $1; ($x =~ m{indexItem}) ? 1 : $x =~ s{%3A%3A}{\/}g; $x/gme;
     return $out;
   },
 
