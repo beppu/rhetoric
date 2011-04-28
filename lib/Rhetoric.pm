@@ -8,7 +8,7 @@ use Rhetoric::Helpers ':all';
 use Rhetoric::Widgets;
 use Rhetoric::Meta;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # global config for our blogging app
 our %CONFIG = (
