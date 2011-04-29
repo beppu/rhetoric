@@ -9,7 +9,7 @@ my $tt     = Template->new({ POST_CHOMP => 1 });
 my $cwd    = getcwd;
 my $config = {
   base       => $cwd,
-  theme_base => "$cwd/theme",
+  theme_base => "$cwd/htdocs/theme",
 };
 $tt->process(\*DATA, $config);
 
@@ -43,6 +43,8 @@ my $app = sub {
 
 builder {
   enable 'Session::Cookie';
-  enable 'Static', path => qr{/theme};
+  enable 'Static',
+    path => qr{/^(theme|css|js|images)|favicon\.ico}x,
+    root => "[% base %]/htdocs";
   $app;
 };

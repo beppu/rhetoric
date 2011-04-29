@@ -55,6 +55,7 @@ our $storage = H->new({
     symlink("content.pl",    "02_about.pl");
     symlink("categories.pl", "03_categories.pl");
     symlink("archives.pl",   "04_archives.pl");
+    symlink("cleanup.pl",    "99_cleanup.pl");
     chdir $cwd;
 
     # TODO - Move this to Rhetoric::Meta
