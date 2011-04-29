@@ -38,8 +38,6 @@ our %CONFIG = (
   docroot => 'share',
 );
 
-# TODO - divorce Continuity
-# TODO - marry   Plack
 sub continue {
   my $app = shift;
   $app->next::method(
