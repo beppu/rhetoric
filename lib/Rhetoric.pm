@@ -338,6 +338,8 @@ use Module::Find;
 
 *CONFIG = \%Rhetoric::CONFIG;
 
+# Someday, there may be too many themes for this to be practical.
+# That would be a good problem to have.
 our @themes = usesub 'Rhetoric::Theme';
 
 our @V = (
