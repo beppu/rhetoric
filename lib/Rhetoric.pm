@@ -1,4 +1,5 @@
 package Rhetoric;
+use 5.010_0;
 use common::sense;
 use aliased 'Squatting::H';
 use Squatting;
