@@ -1,3 +1,10 @@
+
+0.04 Fri Apr 29 14:52:06 PDT 2011
+  - added more missing dependencies
+  - added some basic tests for syntax
+  - tweaked rh-init a bit to make it easier for people
+    to have a place to put their own static content.
+
 0.03 Wed Apr 27 17:12:26 PDT 2011
   - comment formatting
 
