@@ -9,7 +9,7 @@ use File::Path::Tiny;
 *mk = \&File::Path::Tiny::mk;
 
 my @themes = usesub('Rhetoric::Theme');
-mk "htdocs/theme";
+mk("htdocs/theme");
 for my $theme (@themes) {
   my $theme_dist = $theme;
   $theme_dist =~ s/::/-/g;
