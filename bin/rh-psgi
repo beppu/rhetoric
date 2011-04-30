@@ -44,7 +44,7 @@ my $app = sub {
 builder {
   enable 'Session::Cookie';
   enable 'Static',
-    path => qr{/^(theme|css|js|images)|favicon\.ico}x,
+    path => qr{^/(theme|css|js|images)|favicon\.ico}x,
     root => "[% base %]/htdocs";
   $app;
 };
