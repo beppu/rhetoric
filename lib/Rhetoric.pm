@@ -350,6 +350,15 @@ our @V = (
   V(
     'AtomFeed',
 
+    _atom_id => method($post) {
+      my $hostname = $CONFIG{hostname};
+      sprintf('tag:%s,%d-%02d-%02d:%s',
+        $hostname,
+        $post->year, $post->month, $post->day,
+        R('Post', $post->year, $post->month, $post->slug)
+      );
+    },
+
     _link => method($post) {
       my $link     = XML::Atom::Link->new();
       my $hostname = $CONFIG{hostname};
@@ -370,9 +379,10 @@ our @V = (
       $feed->id(sprintf('tag:%s,%d:feed-id', $hostname, $since));
       for my $post (@{ $v->posts }) {
         my $entry = XML::Atom::Entry->new();
+        $entry->id($self->_atom_id($post));
+        $entry->add_link($self->_link($post));
         $entry->title($post->title);
         $entry->content($post->body);
-        $entry->add_link($self->_link($post));
       }
       $feed->as_xml;
     }
