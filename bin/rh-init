@@ -1,7 +1,14 @@
 #!/usr/bin/env perl
-
 use common::sense;
 use Rhetoric;
+use Getopt::Long;
+
+GetOptions(
+  \%_,
+  "help|h",
+  "quiet|q",
+  "output|o=s",
+);
 
 say "storage";
 my $blog = Rhetoric::storage('File');
