@@ -91,6 +91,7 @@ sub service {
   $class->next::method($c, @args);
 }
 
+# initialize app
 sub init {
   my ($class) = @_;
 
@@ -338,9 +339,9 @@ use Module::Find;
 
 *CONFIG = \%Rhetoric::CONFIG;
 
-# Someday, there may be too many themes for this to be practical.
+# Someday, there may be too many themes for the call to usesub to be practical.
 # That would be a good problem to have.
-our @themes = usesub 'Rhetoric::Theme';
+our @themes = usesub('Rhetoric::Theme');
 
 our @V = (
 
@@ -348,10 +349,34 @@ our @V = (
 
   V(
     'AtomFeed',
-    feed => method($v) {
-      my $feed = XML::Atom::Feed->new;
+
+    _link => method($post) {
+      my $link     = XML::Atom::Link->new();
+      my $hostname = $CONFIG{hostname};
+      $link->type('text/html');
+      $link->rel('alternate');
+      $link->href(sprintf(
+        'http://%s%s',
+        $hostname,
+        R('Post', $post->year, $post->month, $post->slug)
+      ));
+      $link;
+    },
+
+    index => method($v) {
+      my $feed     = XML::Atom::Feed->new();
+      my $hostname = $CONFIG{hostname};
+      my $since    = $CONFIG{since};
+      $feed->id(sprintf('tag:%s,%d:feed-id', $hostname, $since));
+      for my $post (@{ $v->posts }) {
+        my $entry = XML::Atom::Entry->new();
+        $entry->title($post->title);
+        $entry->content($post->body);
+        $entry->add_link($self->_link($post));
+      }
       $feed->as_xml;
     }
+
   ),
 
 );
