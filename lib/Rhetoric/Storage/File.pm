@@ -68,9 +68,9 @@ our $storage = H->new({
   meta => method($k, $v) {
     my $root = $self->root;
     if (defined($v)) {
-      io("$root/$k") < "$v\n"; # newline for easier text editing by humans
+      wl("$root/$k", "$v");
     } else {
-      $v = io("$root/$k")->chomp->getline;
+      $v = rl("$root/$k");
     }
     return $v;
   },
@@ -99,10 +99,10 @@ our $storage = H->new({
     my $root = $self->root;
     my $post_path = sprintf("$root/posts/%d/%02d/%02d/%02d/%02d/%02d", $Y, $M, $D, $h, $m, $s);
     mk($post_path);
-    io("$post_path/title")  < $title;
-    io("$post_path/slug")   < slug($title);
-    io("$post_path/body")   < $body;
-    io("$post_path/format") < $format;
+    wl("$post_path/title",  $title);
+    wl("$post_path/slug",   slug($title));
+    wl("$post_path/body",   $body);
+    wl("$post_path/format", $format);
     $post->slug(slug($title));
     $post->format($format);
     $post->year($Y);
@@ -120,11 +120,11 @@ our $storage = H->new({
       ->file()
       ->name('slug')
       ->in($partial_post_path);
-    my ($file) = grep { my $test_slug < io($_); $test_slug eq $slug } @files;
+    my ($file) = grep { my $test_slug = rl($_); $test_slug eq $slug } @files;
     if ($file) {
       my $post_path = dirname($file);
-      my $title  < io("$post_path/title");
-      my $format < io("$post_path/format");
+      my $title  = rl("$post_path/title");
+      my $format = rl("$post_path/format");
       chomp($format);
       my $body   = $F->$format(io("$post_path/body")->all);
       my @s = split('/', $post_path);
@@ -142,7 +142,7 @@ our $storage = H->new({
         hour      => $h,
         minute    => $m,
         second    => $s,
-        author    => ( $Rhetoric::CONFIG{user} // getpwuid( (stat("$post_path/title"))[4] ) )[0],
+        author    => ($Rhetoric::CONFIG{user} // file_owner("$post_path/title")),
       });
       my @comment_files = glob("$post_path/comments/*");
       my $comment_count = scalar(@comment_files);
@@ -172,7 +172,7 @@ our $storage = H->new({
     my @p = $pager->splice(\@all_posts);
     my @posts = map {
       my @d = (split('/', $_))[-7 .. -1]; # d for directory
-      my $slug < io($_);
+      my $slug = rl($_);
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
     } @p;
@@ -235,7 +235,7 @@ our $storage = H->new({
     );
     my @posts = map {
       my @d = (split('/', $_))[-7 .. -1]; # d for directory
-      my $slug < io($_);
+      my $slug = rl($_);
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
     } @all_posts;
@@ -305,7 +305,7 @@ our $storage = H->new({
     $comment;
   },
 
-  #
+  # XXX - this needs to take TT or perl expressions
   menu => method($menu) {
     my $root = $self->root;
     my $menu_path = "$root/menu";
@@ -321,7 +321,7 @@ our $storage = H->new({
       my @menu_files = sort glob("$menu_path/*");
       $menu = [ map {
         my $filename = $_;
-        my $url      < io($filename);
+        my $url      = rl($filename);
         my ($name)   = fileparse($filename);
         chomp($url);
         $name        =~ s/^\d*_//;
