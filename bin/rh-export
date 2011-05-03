@@ -8,8 +8,8 @@ use File::Basename;
 Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
-  'config|c=s%',
   'help|h'
+  'config|c=s%',
 );
 
 # mkpath

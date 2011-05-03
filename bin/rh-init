@@ -3,6 +3,7 @@ use common::sense;
 use Rhetoric;
 use Getopt::Long;
 
+Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
   "help|h",
