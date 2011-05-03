@@ -4,6 +4,7 @@ use common::sense;
 use aliased 'Squatting::H';
 use Data::Page;
 use Rhetoric::Formatters;
+use IO::All;
 
 our $F = $Rhetoric::Formatters::F;
 our @EXPORT_OK   = qw(now slug $F);
@@ -30,6 +31,19 @@ sub slug {
   $title =~ s/\W+$//;
   $title =~ s/\W+/-/g;
   return $title;
+}
+
+# read line
+sub rl {
+  my $file = shift;
+  io($file)->chomp->getline();
+}
+
+# write line
+sub wl {
+  my $file = shift;
+  my $line = shift;
+  io($file) < "$line\n";
 }
 
 1;
