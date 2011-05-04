@@ -62,6 +62,7 @@ sub service {
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
+  $v->{hostname}     = $CONFIG{hostname};
   $v->{state}        = $c->state; # XXX - Should Squatting be doing this automatically?
 
   # hack to help rh-export
