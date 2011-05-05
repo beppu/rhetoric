@@ -62,7 +62,7 @@ sub service {
   $v->{menu}         = $s->menu;
   $v->{request_path} = $c->env->{REQUEST_PATH};
   $v->{time_format}  = $CONFIG{time_format};
-  $v->{hostname}     = $CONFIG{hostname};
+  $v->{hostname}     = $CONFIG{hostname} // $c->env->{HTTP_HOST};
   $v->{state}        = $c->state; # XXX - Should Squatting be doing this automatically?
 
   # hack to help rh-export
@@ -174,6 +174,16 @@ our @C = (
       $page //= 1;
       ($v->{posts}, $v->{pager}) = $storage->posts($CONFIG{posts_per_page}, $page);
       $self->render('index');
+    },
+  ),
+
+  C(
+    Feed => [ '/feed' ],
+    get => method {
+      my $v = $self->v;
+      my $storage = $self->env->storage;
+      ($v->{posts}, $v->{pager}) = $storage->posts($CONFIG{posts_per_page}, 1);
+      $self->render('index', 'AtomFeed');
     },
   ),
 
@@ -384,6 +394,7 @@ our @V = (
         $entry->add_link($self->_link($post));
         $entry->title($post->title);
         $entry->content($post->body);
+        $feed->add_entry($entry);
       }
       $feed->as_xml;
     }
