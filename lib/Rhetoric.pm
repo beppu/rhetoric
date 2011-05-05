@@ -9,7 +9,7 @@ use Rhetoric::Helpers ':all';
 use Rhetoric::Widgets;
 use Rhetoric::Meta;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 # global config for our blogging app
 our %CONFIG = (
