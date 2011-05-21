@@ -566,7 +566,8 @@ L<Rhetoric::Storage::File>
 
 =head2 Rhetoric Themes
 
-L<Rhetoric::Theme::SandStone>
+L<Rhetoric::Theme::SandStone>,
+L<Rhetoric::Theme::Mobile>
 
 =head2 The Eccentric Web Microframework This is Written In
 
