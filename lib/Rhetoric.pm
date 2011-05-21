@@ -426,17 +426,30 @@ Setting up a blog
   cd /var/www/myblog.org
   rh init
 
+  # This is not likely to work on Windows.
+
 Running the blog
 
   plackup rhetoric.psgi
 
 =head1 DESCRIPTION
 
-Rhetoric is a simple CPAN-friendly blogging system for Perl.
+Rhetoric is a simple CPAN-friendly blogging system for Perl.  It came into
+existence, because Tommy Stanton gave a presentation on the current state of
+blogging software at an B<la.pm> meeting, and it left an impression on me.
+Sadly, the blogging systems available for Perl left a lot to be desired.  Tommy
+presented this sad news in an entertaining manner, and I laughed along with him
+in the moment, but when I got home, I thought:
 
-It's simple because...
+B<If the _______ coding in PHP can write blogging systems, and WE CAN'T, what does that say about us?>
 
-It's CPAN-friendly because:
+Thus, this project was started in anger.
+
+I paid very close attention to the feature set that Tommy wanted out of a
+blogging system for Perl hackers, and Rhetoric is my expression of those ideas
+and more.
+
+=head2 Features
 
 =over 4
 
