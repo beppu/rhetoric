@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+use common::sense;
+use Eval::WithLexicals;
+use Term::ReadLine;
+use Rhetoric 'With::MockRequest';
+use Try::Tiny;
+use Data::Dump 'pp';
+
+use Getopt::Long;
+Getopt::Long::Configure('no_ignore_case');
+GetOptions(
+  \%_,
+  'help|h',
+  'config|c=s%',
+);
+
+# I would like to have some common code that finds
+# rhetoric.psgi in the current directory tree
+# traversing upward if necessary.
+# like git
+my $app = do 'rhetoric.psgi';
+my $storage = Rhetoric::storage($Rhetoric::CONFIG{storage});
+my $title = $storage->meta('title');
+
+my $eval = Eval::WithLexicals->new(
+  in_package => 'Rhetoric::Controllers',
+);
+my $prelude = q{
+  our @C;
+  our %C;
+  our @V;
+  our %V;
+  *V = *Rhetoric::Views::V;
+  our %CONFIG;
+  *CONFIG = \%Rhetoric::CONFIG;
+  my $blog = Rhetoric::storage( $CONFIG{storage} );
+};
+$eval->eval($prelude);
+my $term = Term::ReadLine->new();
+while (1) {
+  my $line = $term->readline("$title> ");
+  exit unless defined $line;
+  my @ret;
+  eval {
+    @ret = $eval->eval($line);
+    1;
+  };
+  if ($@) {
+    @ret = ("Error!", $@);
+  }
+  say pp(@ret);
+}

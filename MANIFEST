@@ -1,5 +1,6 @@
 .shipit
 bin/rh
+bin/rh-console
 bin/rh-export
 bin/rh-import-themes
 bin/rh-init
