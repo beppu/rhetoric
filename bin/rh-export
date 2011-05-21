@@ -8,7 +8,7 @@ use File::Basename;
 Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
-  'help|h'
+  'help|h',
   'config|c=s%',
 );
 
