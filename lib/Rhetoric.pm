@@ -571,6 +571,10 @@ L<Rhetoric::Theme::SandStone>
 =head2 The Eccentric Web Microframework This is Written In
 
 L<Squatting>
+
+=head2 The Poor Man's WordPress.com
+
+L<http://rhetoric.al/>
  
 =head1 AUTHOR
 
