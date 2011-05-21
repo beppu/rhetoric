@@ -3,6 +3,7 @@ use common::sense;
 use aliased 'Squatting::H';
 
 use Data::Dump 'pp';
+use Data::Page;
 use DateTime;
 use Cwd;
 use File::Copy;
@@ -59,9 +60,10 @@ our $storage = H->new({
     chdir $cwd;
 
     # TODO - Move this to Rhetoric::Meta
-    $self->meta(title    => "Rhetoric")                                              unless (-e "$root/title");
-    $self->meta(subtitle => "Simple Blogging for Perl")                              unless (-e "$root/subtitle");
-    $self->meta('copy'   => "COPYRIGHT (C) 2011 SOMESITE.COM.  ALL RIGHTS RESERVED") unless (-e "$root/copy");
+    my $copy = "COPYRIGHT (C) 2011 SOMESITE.COM.  ALL RIGHTS RESERVED";
+    $self->meta(title    => "Rhetoric")                 unless (-e "$root/title");
+    $self->meta(subtitle => "Simple Blogging for Perl") unless (-e "$root/subtitle");
+    $self->meta(copy     => $copy)                      unless (-e "$root/copy");
     return 1;
   },
 
@@ -100,7 +102,7 @@ our $storage = H->new({
     my $post_path = sprintf("$root/posts/%d/%02d/%02d/%02d/%02d/%02d", $Y, $M, $D, $h, $m, $s);
     mk($post_path);
     wl("$post_path/title",  $title);
-    wl("$post_path/slug",   slug($title));
+    wl("$post_path/slug",   slug($title));  # XXX - slug generation has to look out for duplicates
     wl("$post_path/body",   $body);
     wl("$post_path/format", $format);
     $post->slug(slug($title));
@@ -179,6 +181,44 @@ our $storage = H->new({
     return (\@posts, $pager);
   },
 
+  add_category => method($post, $category) {
+    my $root = $self->root;
+    my $original = sprintf(
+      "$root/posts/%d/%02d/%02d/%02d/%02d/%02d",
+      $post->year,
+      $post->month,
+      $post->day,
+      $post->hour,
+      $post->minute,
+      $post->second,
+    );
+    my $link = sprintf(
+      "$root/categories/$category/%d-%02d-%02d-%02d-%02d-%02d",
+      $post->year,
+      $post->month,
+      $post->day,
+      $post->hour,
+      $post->minute,
+      $post->second,
+    );
+    mk("$root/categories/$category");
+    symlink($original, $link);
+  },
+
+  remove_category => method($post, $category) {
+    my $root = $self->root;
+    my $link = sprintf(
+      "$root/categories/$category/%d-%02d-%02d-%02d-%02d-%02d",
+      $post->year,
+      $post->month,
+      $post->day,
+      $post->hour,
+      $post->minute,
+      $post->second,
+    );
+    unlink($link);
+  },
+
   categories => method {
     my $root = $self->root;
     my $category_path = "$root/categories";
@@ -194,7 +234,23 @@ our $storage = H->new({
 
   # TODO - list of category posts
   category_posts => method($category) {
-    ([], undef);
+    my $root = $self->root;
+
+    my @category_posts = File::Find::Rule
+      ->file()
+      ->name('slug')
+      ->extras({ follow => 1 })
+      ->in("$root/categories/$category");
+
+    my @posts = map {
+      my @d       = (split('/', $_))[ -2 .. -1 ];    # d for directory
+      my @dt      =  split('-', $d[0]);              # dt for DateTime
+      my $slug    = rl($_);
+      my ($y, $m) = ($dt[0], $dt[1]);
+      $self->post($y, $m, $slug);
+    } @category_posts;
+
+    (\@posts, undef);
   },
 
   #
@@ -227,7 +283,7 @@ our $storage = H->new({
   # 
   archive_posts => method($y, $m) {
     my $root = $self->root;
-    my @all_posts = reverse sort (
+    my @archive_posts = reverse sort (
       File::Find::Rule
         ->file()
         ->name('slug')
@@ -238,7 +294,7 @@ our $storage = H->new({
       my $slug = rl($_);
       my ($y, $m) = ($d[0], $d[1]);
       $self->post($y, $m, $slug);
-    } @all_posts;
+    } @archive_posts;
     (\@posts, undef);
   },
 
