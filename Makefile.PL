@@ -23,6 +23,7 @@ requires 'Template'                   => 0;
 requires 'Pod::Simple'                => 0;
 requires 'Text::Textile'              => 0;
 requires 'Text::Markdown'             => 0;
+requires 'KinoSearch'                 => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
