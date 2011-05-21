@@ -3,6 +3,7 @@ use base 'Exporter';
 use common::sense;
 use aliased 'Squatting::H';
 use Rhetoric::Formatters;
+use Rhetoric::Objects;
 use IO::All;
 
 our $F = $Rhetoric::Formatters::F;
@@ -48,7 +49,7 @@ sub wl {
 # owner of file
 sub file_owner {
   my $file = shift;
-  getpwuid( (stat($file))[4] );
+  ( getpwuid( (stat($file))[4] ) )[0];
 }
 
 1;
