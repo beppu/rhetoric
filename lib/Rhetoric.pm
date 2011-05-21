@@ -461,6 +461,10 @@ and more.
 
 =head1 API
 
+The controller objects for Rhetoric respond to the following requests.
+
+
+
 =head2 Home
 
 /
@@ -469,6 +473,24 @@ and more.
 
 =head3 get
 
+Return the data necessary to display a list of blog posts.  If a page is not
+specified, page 1 is assumed.
+
+B<OUTPUT>
+
+=over 4
+
+=item posts
+
+an arrayref of Post objects for the given page.
+
+=item pager
+
+a L<Data::Page> object for the current page of posts.
+
+=back
+
+
 
 =head2 Post
 
@@ -476,15 +498,21 @@ and more.
 
 =head3 get
 
+Return the data necessary to display a post and its comments.
 
+B<OUTPUT>
 
-=head2 NewPost
+=over 4
 
-/post
+=item post
 
-=head3 get
+a C<$Post> object
 
-=head3 post
+=item comments
+
+an arrayref of C<$Comment> objects
+
+=back
 
 
 
@@ -494,6 +522,7 @@ and more.
 
 =head3 post
 
+Create a new comment.
 
 
 =head2 Category
@@ -501,6 +530,8 @@ and more.
 /category/(\w+)
 
 =head3 get
+
+Return the data needed to display posts in a given category.
 
 
 
@@ -510,6 +541,8 @@ and more.
 
 =head3 get
 
+Return the data needed to display posts in a given year and month.
+
 
 
 =head2 Page
@@ -518,8 +551,27 @@ and more.
 
 =head3 get
 
+When all else fails, try to load an arbitrarily named template from the filesystem.
 
 
+
+=head1 SEE ALSO
+
+=head2 Modules of Interest Within Rhetoric 
+
+L<Rhetoric::Objects>,
+L<Rhetoric::Helpers>,
+L<Rhetoric::Widgets>,
+L<Rhetoric::Storage::File>
+
+=head2 Rhetoric Themes
+
+L<Rhetoric::Theme::SandStone>
+
+=head2 The Eccentric Web Microframework This is Written In
+
+L<Squatting>
+ 
 =head1 AUTHOR
 
 John BEPPU E<lt>beppu@cpan.orgE<gt>
