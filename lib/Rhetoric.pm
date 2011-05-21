@@ -426,11 +426,26 @@ Setting up a blog
   cd /var/www/myblog.org
   rh init
 
-  # This is not likely to work on Windows.
+  # This is not likely to work on Windows
+  # unless you have rsync installed.
+
+  # After you run `rh init`, feel free to look
+  # around and explore the directory structure.
 
 Running the blog
 
   plackup rhetoric.psgi
+
+Inspecting the $blog with a REPL
+
+  rh console
+  Rhetoric> $blog
+  Rhetoric> $blog->meta('title')
+  Rhetoric> $blog->meta('title' => 'My Blog')
+  Rhetoric> my ($posts, $pager) = $blog->posts()
+  Rhetoric> my $post = $blog->new_post({ title => 'Hello, World', body => 'hi' })
+  Rhetoric> my @categories = $blog->categories
+  Rhetoric> exit
 
 =head1 DESCRIPTION
 
@@ -457,6 +472,14 @@ and more.
 
 =item * Themes can also be installed from CPAN.
 
+=item * The default storage engine stores posts and comments in the filesystem.
+
+=item * I accidentally created a lightweight widget system.
+
+=item * A static export of a blog is possible.
+
+=item * Posts can be created from the web.
+
 =back
 
 =head1 API
@@ -471,7 +494,9 @@ The controller objects for Rhetoric respond to the following requests.
 
 /page/(\d+)
 
-=head3 get
+=over 4
+
+=item get($page)
 
 Return the data necessary to display a list of blog posts.  If a page is not
 specified, page 1 is assumed.
@@ -480,13 +505,15 @@ B<OUTPUT>
 
 =over 4
 
-=item posts
+=item $v->{posts}
 
 an arrayref of Post objects for the given page.
 
-=item pager
+=item $v->{pager}
 
 a L<Data::Page> object for the current page of posts.
+
+=back
 
 =back
 
@@ -496,7 +523,9 @@ a L<Data::Page> object for the current page of posts.
 
 /(\d+)/(\d+)/(\w+)
 
-=head3 get
+=over 4
+
+=item get($year, $month, $slug)
 
 Return the data necessary to display a post and its comments.
 
@@ -504,13 +533,15 @@ B<OUTPUT>
 
 =over 4
 
-=item post
+=item $v->{post}
 
 a C<$Post> object
 
-=item comments
+=item $v->{comments}
 
 an arrayref of C<$Comment> objects
+
+=back
 
 =back
 
@@ -520,18 +551,69 @@ an arrayref of C<$Comment> objects
 
 /comment
 
-=head3 post
+=over 4
+
+=item post( )
 
 Create a new comment.
+
+B<INPUT>
+
+=over 4
+
+=item $input->{name}
+
+=item $input->{email}
+
+=item $input->{url}
+
+=item $input->{format}
+
+=item $input->{body}
+
+=back
+
+B<OUTPUT>
+
+=over 4
+
+=item $state->{name}
+
+=item $state->{email}
+
+=item $state->{url}
+
+=back
+
+=back
+
 
 
 =head2 Category
 
 /category/(\w+)
 
-=head3 get
+=over 4
+
+=item get($category)
 
 Return the data needed to display posts in a given category.
+
+B<OUTPUT>
+
+=over 4
+
+=item $v->{posts}
+
+an arrayref of Post objects for the given page.
+
+=item $v->{pager}
+
+a L<Data::Page> object for the current page of posts.
+
+=back
+
+=back
 
 
 
@@ -539,9 +621,27 @@ Return the data needed to display posts in a given category.
 
 /archive/(\d+)/(\d+)
 
-=head3 get
+=over 4
+
+=item get($year, $month)
 
 Return the data needed to display posts in a given year and month.
+
+B<OUTPUT>
+
+=over 4
+
+=item $v->{posts}
+
+an arrayref of Post objects for the given page.
+
+=item $v->{pager}
+
+a L<Data::Page> object for the current page of posts.
+
+=back
+
+=back
 
 
 
@@ -549,9 +649,13 @@ Return the data needed to display posts in a given year and month.
 
 /(.*)
 
-=head3 get
+=over 4
+
+=item get($page)
 
 When all else fails, try to load an arbitrarily named template from the filesystem.
+
+=back
 
 
 
