@@ -17,7 +17,8 @@ sub _load {
   try {
     require($path);
     $module_loaded = 1;
-  } catch {
+  }
+  catch {
     ouch('RequireFailed', "Could not load $module: $_");
   };
   return $formatter->() if $module_loaded;
