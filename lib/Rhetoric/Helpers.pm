@@ -2,7 +2,6 @@ package Rhetoric::Helpers;
 use base 'Exporter';
 use common::sense;
 use aliased 'Squatting::H';
-use Data::Page;
 use Rhetoric::Formatters;
 use IO::All;
 
