@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+use common::sense;
+use Rhetoric 'With::MockRequest';
+use Getopt::Long;
+use Data::Dump 'pp';
+use File::Temp;
+use YAML;
+Getopt::Long::Configure('no_ignore_case');
+GetOptions(
+  \%_,
+  'help|h',
+  'list|l',
+  'edit|e=i',
+  'config|c=s%',
+);
+
+my $app  = do 'rhetoric.psgi';
+my $blog = Rhetoric::storage($Rhetoric::CONFIG{storage});
+
+sub valid_post {
+  # valid yaml?
+  # all required fields filled in?
+  return 1;
+}
+
+do {
+  system("$ENV{EDITOR} post.xml");
+} until (valid_post("post.xml"))
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+rh-post - create and edit Rhetoric blog posts
+
+=head1 SYNOPSIS
+
+Usage:
+
+  rh post [OPTION]...
+
+=head1 DESCRIPTION
+
+=head1 AUTHOR
+
+John BEPPU E<lt>beppu@cpan.orgE<gt>
+
+=cut
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab
