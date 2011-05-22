@@ -50,3 +50,38 @@ while (1) {
   }
   say pp(@ret);
 }
+
+__END__
+
+=head1 NAME
+
+rh-console - a REPL for introspecting Rhetoric blogs
+
+=head1 SYNOPSIS
+
+  cd /var/www/myblog.org
+  rh console
+  Rhetoric> $blog
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=head1 SEE ALSO
+
+=head1 AUTHOR
+
+John BEPPU E<lt>beppu@cpan.orgE<gt>
+
+=cut
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab

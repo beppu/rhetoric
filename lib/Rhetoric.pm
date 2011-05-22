@@ -482,8 +482,6 @@ and more.
 
 =item * A static export of a blog is possible.
 
-=item * Posts can be created from the web.
-
 =back
 
 
@@ -491,33 +489,33 @@ and more.
 
 =over 4
 
-=item rh
+=item L<rh>
 
 This script looks in your C<$PATH> for scripts named rh-$something and executes
 them.  For example, to run C<rh-console>, you'd type:
 
   rh console
 
-=item rh-init
+=item L<rh-init>
 
 This initializes the directory layout for your blog data.
 
-=item rh-import-themes
+=item L<rh-import-themes>
 
 This looks for all Rhetoric::Theme::* modules installed, and
 it copies their templates locally.  This script is called by
 C<rh-init>.
 
-=item rh-psgi
+=item L<rh-psgi>
 
 This generates a C<rhetoric.psgi> file.  It is also called by
 C<rh-init>.
 
-=item rh-export
+=item L<rh-export>
 
 This script generates a static export of the site.
 
-=item rh-console
+=item L<rh-console>
 
 This starts up an C<Eval::WithLexicals>-based REPL that lets you
 introspect and modify the contents of your blog.  Until better
@@ -584,6 +582,14 @@ files.
 
 Some of this can also be done through C<rh console> and the C<$blog>
 object that it provides.  I'll get around to documenting that someday.
+
+=head2 Configuration
+
+The configuration is contained in %Rhetoric::CONFIG.  Edit F<rhetoric.psgi>
+to change your blog's configuration.
+
+TODO: add explanation of config variables
+
 
 =head1 API
 
@@ -780,8 +786,8 @@ L<Rhetoric::Theme::Mobile>
 
 L<Squatting>
 
+=for later
 =head2 The Poor Man's WordPress.com
-
 L<http://rhetoric.al/>
  
 =head1 AUTHOR
