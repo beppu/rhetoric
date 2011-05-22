@@ -4,6 +4,7 @@ bin/rh-console
 bin/rh-export
 bin/rh-import-themes
 bin/rh-init
+bin/rh-post
 bin/rh-psgi
 Changes
 inc/Module/Install.pm
@@ -20,6 +21,7 @@ lib/Rhetoric.pm
 lib/Rhetoric/Formatters.pm
 lib/Rhetoric/Helpers.pm
 lib/Rhetoric/Meta.pm
+lib/Rhetoric/Objects.pm
 lib/Rhetoric/Storage/CouchDB.pm
 lib/Rhetoric/Storage/File.pm
 lib/Rhetoric/Storage/MySQL.pm

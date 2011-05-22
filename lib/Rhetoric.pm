@@ -436,6 +436,10 @@ Running the blog
 
   plackup rhetoric.psgi
 
+Create a post
+
+  rh post
+
 Inspecting the $blog with a REPL
 
   rh console
@@ -570,6 +574,7 @@ B<Explanation of Filesystem Layout>:
     $position/
       NN_$script.pl       (widgets are perl scripts that return subs)
                           (subs are expected to return strings)
+                          (In addition to a blog, you get a tiny CMS, too.)
 
 Whenever you see NN or NNN, Rhetoric expects a number so that it can
 put things in the right order.  Think back to BASIC if you're old enough.
@@ -771,7 +776,7 @@ L<Rhetoric::Storage::File>
 L<Rhetoric::Theme::SandStone>,
 L<Rhetoric::Theme::Mobile>
 
-=head2 The Eccentric Web Microframework This is Written In
+=head2 The Web Microframework Powering Rhetoric
 
 L<Squatting>
 
