@@ -416,7 +416,7 @@ sub init {
 
 =head1 NAME
 
-Rhetoric - a simple blogging system for perl
+Rhetoric - a simple CPAN-friendly blogging system for Perl
 
 =head1 SYNOPSIS
 
@@ -481,6 +481,104 @@ and more.
 =item * Posts can be created from the web.
 
 =back
+
+
+=head2 Utilities
+
+=over 4
+
+=item rh
+
+This script looks in your C<$PATH> for scripts named rh-$something and executes
+them.  For example, to run C<rh-console>, you'd type:
+
+  rh console
+
+=item rh-init
+
+This initializes the directory layout for your blog data.
+
+=item rh-import-themes
+
+This looks for all Rhetoric::Theme::* modules installed, and
+it copies their templates locally.  This script is called by
+C<rh-init>.
+
+=item rh-psgi
+
+This generates a C<rhetoric.psgi> file.  It is also called by
+C<rh-init>.
+
+=item rh-export
+
+This script generates a static export of the site.
+
+=item rh-console
+
+This starts up an C<Eval::WithLexicals>-based REPL that lets you
+introspect and modify the contents of your blog.  Until better
+documentation comes along, notice how the C<$blog> object is
+being used in the SYNOPSIS.
+
+=back
+
+
+=head2 Administration
+
+Eventually, there will be a nice web-based admin interface mounted on
+C</admin>.  However, until then, you're going to have to administer
+this blog by editing text files.  After you run C<rh init>, you should
+see that many directories and files have been created.
+
+B<Explanation of Filesystem Layout>:
+
+  title           (title of blog)
+  subtitle        (subtitle of blog)
+  copy            (copyright statement at bottom)
+  rhetoric.psgi   (PSGI-compatible script)
+
+  categories/
+    $category/
+      $year-$month-$day-$hour-$minute-$second (symlink)
+
+  htdocs/
+    (templates, css, images, js for themes)
+
+  menu/
+    NN_$title (these files control what appears in the menu)
+
+  pages/
+    *.html (if you want some static content, put it here)
+
+  posts/
+    $year/
+      $month/
+        $day/
+          $hour/
+            $minute/
+              $second/
+                title     (blog posts)
+                slug
+                format
+                body
+                read_more
+
+                comments/ (comments for post)
+                  NNN
+
+  widgets/
+    $position/
+      NN_$script.pl       (widgets are perl scripts that return subs)
+                          (subs are expected to return strings)
+
+Whenever you see NN or NNN, Rhetoric expects a number so that it can
+put things in the right order.  Think back to BASIC if you're old enough.
+
+In the pursuit of customizing your blog, you may edit any of those
+files.
+
+Some of this can also be done through C<rh console> and the C<$blog>
+object that it provides.  I'll get around to documenting that someday.
 
 =head1 API
 
@@ -661,10 +759,10 @@ When all else fails, try to load an arbitrarily named template from the filesyst
 
 =head1 SEE ALSO
 
-=head2 Modules of Interest Within Rhetoric 
+=head2 Other Rhetoric::* Modules
 
-L<Rhetoric::Objects>,
 L<Rhetoric::Helpers>,
+L<Rhetoric::Objects>,
 L<Rhetoric::Widgets>,
 L<Rhetoric::Storage::File>
 

@@ -3,6 +3,15 @@ use common::sense;
 use aliased 'Squatting::H';
 use Method::Signatures::Simple;
 
+our $Blog = H->new({
+  storage  => undef,
+  widgets  => undef,
+
+  metadata => undef, # rip methods out of Rhetoric::Storage::File
+                     # metadata manipulation is always the same
+                     # it doesn't need to be abstracted out
+});
+
 our $Post = H->new({
   title     => '',
   format    => 'pod',
