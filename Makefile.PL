@@ -5,7 +5,7 @@ all_from 'lib/Rhetoric.pm';
 
 requires 'aliased'                    => 0;
 requires 'common::sense'              => 0;
-requires 'Squatting'                  => '0.81';
+requires 'Squatting'                  => '0.82';
 requires 'File::Find::Rule'           => 0;
 requires 'File::Path::Tiny'           => 0;
 requires 'File::Which'                => 0;
@@ -23,13 +23,14 @@ requires 'Template'                   => 0;
 requires 'Pod::Simple'                => 0;
 requires 'Text::Textile'              => 0;
 requires 'Text::Markdown'             => 0;
-requires 'KinoSearch'                 => 0;
+requires 'Set::Object'                => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
 install_script 'bin/rh-console';
 install_script 'bin/rh-export';
 install_script 'bin/rh-import-themes';
+install_script 'bin/rh-post';
 install_script 'bin/rh-psgi';
 
 install_share 'share';
