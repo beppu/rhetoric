@@ -36,7 +36,7 @@ my $prelude = q{
   my $blog = Rhetoric::storage( $CONFIG{storage} );
 };
 $eval->eval($prelude);
-my $term = Term::ReadLine->new();
+my $term = Term::ReadLine->new('rh-console');
 while (1) {
   my $line = $term->readline("$title> ");
   exit unless defined $line;

@@ -1,21 +1,23 @@
 #!/usr/bin/env perl
 use common::sense;
 use Rhetoric 'With::MockRequest';
+use Rhetoric::Helpers ':all';
 use Getopt::Long;
 use Data::Dump 'pp';
 use File::Temp;
 use YAML;
+use IO::All;
 Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
   'help|h',
   'list|l',
-  'edit|e=i',
-  'config|c=s%',
+  'edit|e=s',
 );
 
 my $app  = do 'rhetoric.psgi';
 my $blog = Rhetoric::storage($Rhetoric::CONFIG{storage});
+#  $blog = blog(\%Rhetoric::CONFIG);
 
 sub valid_post {
   # valid yaml?
@@ -25,7 +27,7 @@ sub valid_post {
 
 do {
   system("$ENV{EDITOR} post.xml");
-} until (valid_post("post.xml"))
+} until (valid_post("post.xml"));
 
 exit 0;
 
