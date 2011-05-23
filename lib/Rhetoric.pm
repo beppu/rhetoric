@@ -50,7 +50,19 @@ sub continue {
 # service() is run on every request (just like in Camping).
 sub service {
   my ($class, $c, @args) = @_;
-  $c->view = $c->state->{theme} // $CONFIG{theme};
+
+  # support for massive virtual hosting and other hostname-based trickery
+  my %new_config;
+  if ($class->can('config_for_host')) {
+    %new_config = $class->config_for_host($c->env->{HTTP_HOST});
+  }
+  local %CONFIG = (%CONFIG, %new_config);
+
+  warn $CONFIG{theme};
+
+  # custom view
+  $c->view = $CONFIG{theme};
+
   my $v = $c->v;
   my $s = $c->env->{storage} = storage($CONFIG{storage});
   H->bless($v);
@@ -97,11 +109,11 @@ sub init {
   my ($class) = @_;
 
   # TODO - Make absolutely sure the Page controller is at $C[-1].
-  if ($Rhetoric::Controllers::C[-1]->name ne 'Page') {
-    # find index of Page controller
-    # splice it out
-    # push it back on to the end
-  }
+  # 1. leave the Page controller out of @C
+  # 2. push it on to @C when this init runs.
+  # 3. run the rest of the init methods.
+  push @Rhetoric::Controllers::C, $Rhetoric::Controllers::Page;
+
 
   # view initialization
   Rhetoric::Views::init();
@@ -323,20 +335,22 @@ our @C = (
     }
   ),
 
-  # Everything else that's not static is a page to be rendered through the view.
-  # This controller has to be last!
-  C(
-    Page => [ '/(.*)' ],
-    get => method($path) {
-      if ($path =~ /\.\./) {
-        $self->status = 404;
-        return "GTFO";
-      }
-      my $v = $self->v;
-      $self->render($path);
-    }
-  ),
 
+);
+
+# Everything else that's not static is a page template.
+# This controller has to be last!
+# To ensure that, Rhetoric::init() will push it on to @C.
+our $Page = C(
+  Page => [ '/(.*)' ],
+  get => method($path) {
+    if ($path =~ /\.\./) {
+      $self->status = 404;
+      return "GTFO";
+    }
+    my $v = $self->v;
+    $self->render($path);
+  }
 );
 
 #_____________________________________________________________________________
