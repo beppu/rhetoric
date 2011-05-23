@@ -3,6 +3,7 @@ use common::sense;
 use aliased 'Squatting::H';
 use Method::Signatures::Simple;
 
+# clone
 our $Blog = H->new({
   storage  => undef,
   widgets  => undef,
@@ -10,8 +11,21 @@ our $Blog = H->new({
   metadata => undef, # rip methods out of Rhetoric::Storage::File
                      # metadata manipulation is always the same
                      # it doesn't need to be abstracted out
+
+
 });
 
+# assign into $Blog clone's "posts" slot
+our $Posts = H->new({
+  all => method {},
+  list => method {},
+  by_archive => method($year, $month, $pager_options) {
+  },
+  by_category => method($category, $pager_options) {
+  }
+});
+
+# clone
 our $Post = H->new({
   title     => '',
   format    => 'pod',
@@ -19,6 +33,11 @@ our $Post = H->new({
   read_more => '',
 });
 
+# assign into $Post clone's "comments" slot
+our $Comments = H->new({
+});
+
+# clone
 our $Comment = H->new({
   name   => '',
   email  => '',
