@@ -58,8 +58,6 @@ sub service {
   }
   local %CONFIG = (%CONFIG, %new_config);
 
-  warn $CONFIG{theme};
-
   # custom view
   $c->view = $CONFIG{theme};
 
