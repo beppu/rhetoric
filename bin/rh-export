@@ -28,6 +28,7 @@ for (keys %{$_{config}}) {
 }
 pp $C;
 
+Rhetoric->relocate($C->{relocate}) if ($C->{relocate});
 Rhetoric->init;
 
 package Rhetoric::Controllers;
