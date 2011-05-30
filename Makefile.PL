@@ -24,6 +24,7 @@ requires 'Pod::Simple'                => 0;
 requires 'Text::Textile'              => 0;
 requires 'Text::Markdown'             => 0;
 requires 'Set::Object'                => 0;
+requires 'Plack::Middleware::Session::Cookie' => 0;
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
