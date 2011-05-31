@@ -15,9 +15,15 @@ Released   : 20100928
 <meta name="keywords" content="[% keywords %]" />
 <meta name="description" content="[% description %]" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>[% title %][% IF post; " - " _ post.title; END %]</title>
+<title>[% IF post; post.title _ " - "; END %][% title %]</title>
 <link href="[% R('Feed') %]" rel="alternate" type="application/atom+xml" title="[% title %] Feed" />
 <link href="[% relocated %]/theme/BrownStone/style.css" rel="stylesheet" type="text/css" media="screen" />
+[% FOREACH url IN css %]
+<link href="[% url %]" rel="stylesheet" type="text/css" media="screen" />
+[% END %]
+[% FOREACH url IN js %]
+<script type="text/javascript" src="[% url %]"></script>
+[% END %]
 </head>
 <body>
 <div id="wrapper">
