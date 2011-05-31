@@ -37,13 +37,12 @@
               <input type="text" name="url" value="[% state.url | html %]" />
               <h3>Comment</h3>
               <textarea name="body" rows="8" cols="40"></textarea>
-              <h3>Format</h3>
-              <select name="format">
-                <option value="pod">POD</option>
-                <option value="textile">Textile</option>
-                <option value="markdown">Markdown</option>
-              </select>
               <div>
+                <select name="format">
+                  <option value="pod">POD</option>
+                  <option value="textile">Textile</option>
+                  <option value="markdown">Markdown</option>
+                </select>
                 <input type="submit" name="submit" value="Submit" />
               </div>
             </form>
