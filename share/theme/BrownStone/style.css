@@ -103,7 +103,12 @@ a:hover {
 	margin: 0px;
 	padding: 0px;
 	font-size: 26px;
-} 
+	line-height: 1em;
+}
+
+#subtitle {
+	margin-top: 20px;
+}
 
 #logo a {
 	border: none;

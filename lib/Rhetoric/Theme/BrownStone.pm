@@ -42,7 +42,11 @@ Rhetoric::Theme::BrownStone - the default theme for Rhetoric blogs
 
 =head1 SYNOPSIS
 
+  use Rhetoric::Theme::BrownStone;
+
 =head1 DESCRIPTION
+
+This is a Rhetoric theme based on the BrownStone template from Free CSS Templates.
 
 =head1 API
 
@@ -61,6 +65,10 @@ L<Squatting::View>
 =head1 AUTHOR
 
 L<http://freecsstemplates.com/>
+
+=head1 LICENSE
+
+Creative Commons Attribution 3.0 Unported
 
 =cut
 
