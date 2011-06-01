@@ -29,13 +29,13 @@
               <input type="hidden" name="year"  value="[% post.year  %]" />
               <input type="hidden" name="month" value="[% post.month %]" />
               <input type="hidden" name="slug"  value="[% post.slug  %]" />
-              <h3>Name</h3>
-              <input type="text" name="name" value="[% state.name | html %]" />
-              <h3>Email</h3>
-              <input type="text" name="email" value="[% state.email | html %]" />
-              <h3>URL</h3>
-              <input type="text" name="url" value="[% state.url | html %]" />
-              <h3>Comment</h3>
+              <h4>Name</h4>
+              <input type="text" name="name" value="[% state.name | html %]" size="32" />
+              <h4>Email</h4>
+              <input type="text" name="email" value="[% state.email | html %]" size="32" />
+              <h4>URL</h4>
+              <input type="text" name="url" value="[% state.url | html %]" size="32" />
+              <h4>Comment</h4>
               <textarea name="body" rows="8" cols="40"></textarea>
               <div>
                 <select name="format">
@@ -43,7 +43,9 @@
                   <option value="textile">Textile</option>
                   <option value="markdown">Markdown</option>
                 </select>
+                <!--
                 <input type="submit" name="submit" value="Preview" />
+                -->
                 <input type="submit" name="submit" value="Submit" />
               </div>
             </form>
