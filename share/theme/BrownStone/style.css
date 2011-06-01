@@ -266,6 +266,13 @@ a:hover {
 	text-align: left;
 }
 
+.post pre {
+        padding: 1em 0;
+        background: #D0D0C0;
+        color: #203048;
+        border-radius: 4px;
+}
+
 .links {
 	padding-top: 20px;
 	font-size: 12px;
