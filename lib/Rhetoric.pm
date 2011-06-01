@@ -809,6 +809,6 @@ John BEPPU E<lt>beppu@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-MIT
+Perl
 
 =cut
