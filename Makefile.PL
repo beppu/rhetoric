@@ -26,6 +26,10 @@ requires 'Text::Markdown'                     => 0;
 requires 'Set::Object'                        => 0;
 requires 'Plack::Middleware::Session::Cookie' => 0;
 
+# It has a nicer API than File::Copy::Recursive.
+# Windows users can install Cygwin.
+requires_external_bin 'rsync';
+
 install_script 'bin/rh';
 install_script 'bin/rh-init';
 install_script 'bin/rh-console';
