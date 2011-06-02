@@ -29,6 +29,7 @@ requires 'Plack::Middleware::Session::Cookie' => 0;
 # Windows users can install Cygwin or start using a Unix system.
 requires_external_bin 'rsync';
 requires_external_bin 'tar';
+requires_external_bin 'cp';
 
 install_script 'bin/rh';
 install_script 'bin/rh-init';
