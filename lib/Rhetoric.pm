@@ -27,8 +27,10 @@ our %CONFIG = (
 
   'storage'             => 'File',                # Rhetoric::Storage::____
   'storage.file.path'   => '.',
+
   # TODO
   'storage.couchdb.url'    => undef,              # URL for CouchDB database
+
   # TODO
   'storage.mysql.connect'  => undef,              # connect string suitable for DBI->connect
   'storage.mysql.user'     => undef,
