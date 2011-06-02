@@ -58,7 +58,7 @@ Copy all theme files into htdocs/
 This finds every Rhetoric::Theme on your system, and copies their static files
 to F<htdocs/>.
 
-=head1 OPTION
+=head1 OPTIONS
 
 =over 4
 
