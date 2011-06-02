@@ -396,13 +396,13 @@ our @V = (
     },
 
     index => method($v) {
-      my $feed     = XML::Atom::Feed->new();
+      my $feed     = XML::Atom::Feed->new(Version => '1.0');
       my $hostname = $CONFIG{hostname};
       my $since    = $CONFIG{since};
       $feed->title($v->title);
       $feed->id(sprintf('tag:%s,%d:feed-id', $hostname, $since));
       for my $post (@{ $v->posts }) {
-        my $entry = XML::Atom::Entry->new();
+        my $entry = XML::Atom::Entry->new(Version => '1.0');
         $entry->id($self->_atom_id($post));
         $entry->add_link($self->_link($post));
         $entry->title($post->title);
