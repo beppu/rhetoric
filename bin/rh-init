@@ -8,13 +8,91 @@ GetOptions(
   \%_,
   "help|h",
   "quiet|q",
-  "output|o=s",
+  "hostname=s",
 );
 
-say "storage";
+if ($_{help}) {
+  require Pod::Usage;
+  Pod::Usage->import;
+  pod2usage();
+}
+
+# --hostname is required
+if (not $_{hostname}) {
+  die "--hostname must be specified\n";
+}
+
+# setup the directory structure for blog data
+say "storage" unless $_{quiet};
 my $blog = Rhetoric::storage('File');
 $blog->install;
-say "rh import-themes";
-system("rh import-themes");
-say "rh psgi";
-system("rh psgi > rhetoric.psgi");
+
+# extra commands
+my @commands = map { $_{quiet} ? "$_ > /dev/null" : $_ } (
+
+  # make a local copy of all themes
+  "rh import-themes",
+
+  # create rhetoric.psgi
+  "rh psgi --hostname='$_{hostname}'"
+);
+
+# run the extra commands
+for my $cmd (@commands) {
+  say $cmd unless $_{quiet};
+  system($cmd);
+}
+
+__END__
+
+=head1 NAME
+
+rh-init - initialize a Rhetoric blog
+
+=head1 SYNOPSIS
+
+Start a new Rhetoric blog
+
+  hostname=blog.domain.com
+  mkdir -p  /var/www/$hostname
+  cd        /var/www/$hostname
+  rh init --hostname $hostname
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help, -h
+
+Display help message
+
+=item --quiet, -q
+
+Don't print so much stuff
+
+=item --hostname=HOSTNAME
+
+Specify the hostname that the blog will be served from.
+
+=back
+
+=head1 SEE ALSO
+
+L<rh>, L<rh-import-themes>, L<rh-psgi>
+
+=head1 AUTHOR
+
+=cut
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab
