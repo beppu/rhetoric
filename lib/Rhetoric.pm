@@ -112,7 +112,6 @@ sub init {
   # 3. run the rest of the init methods.
   push @Rhetoric::Controllers::C, $Rhetoric::Controllers::Page;
 
-
   # view initialization
   Rhetoric::Views::init();
 
@@ -222,7 +221,7 @@ our @C = (
         $self->render('new_post');
       } else {
         $self->status = 401;
-        $self->headers->{'WWW-Authenticate'} = 'Basic realm="Secret"';
+        $self->headers->{'WWW-Authenticate'} = 'Basic realm="'.$CONFIG{hostname}.'"';
         "auth yourself";
       }
     },
@@ -313,6 +312,7 @@ our @C = (
     }
   ),
 
+  # Useful for debugging?
   C(
     Env => [ '/env' ],
     get => method {
@@ -322,6 +322,8 @@ our @C = (
     }
   ),
 
+  # XXX - This was a cool feature, but it's going away.
+  #       We're going to rely exclusively on $CONFIG{theme}.
   C(
     Theme => [ '/t', '/t/(.*)' ],
     get => method($name) {
