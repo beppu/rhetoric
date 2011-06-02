@@ -337,6 +337,16 @@ our @C = (
     }
   ),
 
+  # This is a controller that needs to be towards the end.
+  # If someone puts a trailing slash on the end of a URL,
+  # strip it off and 301 redirect them.
+  C(
+    EndsWithSlash => [ '/(.+)/' ],
+    get => sub {
+      my ($self, $path) = @_;
+      $self->redirect("$CONFIG{relocated}/$path", 301);
+    }
+  ),
 
 );
 
