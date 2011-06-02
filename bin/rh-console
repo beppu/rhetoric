@@ -93,10 +93,6 @@ Display a help message.
 
 L<rh>, L<Rhetoric::Storage::File>
 
-=head1 AUTHOR
-
-John BEPPU E<lt>beppu@cpan.orgE<gt>
-
 =cut
 
 # Local Variables: ***

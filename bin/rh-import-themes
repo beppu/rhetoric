@@ -13,6 +13,12 @@ GetOptions(
   "quiet|q",
 );
 
+if ($_{help}) {
+  require Pod::Usage;
+  Pod::Usage->import;
+  pod2usage(-verbose => 1);
+}
+
 *mk = \&File::Path::Tiny::mk;
 
 my @themes = usesub('Rhetoric::Theme');
@@ -34,3 +40,47 @@ for my $theme (@themes) {
 # XXX - this may move elsewhere
 my $share = dist_dir('Rhetoric');
 system("cp '$share/favicon.ico' htdocs") unless (-e 'htdocs/favicon.ico');
+
+__END__
+
+=head1 NAME
+
+rh-import-themes - Copy all theme files into htdocs/
+
+=head1 SYNOPSIS
+
+Copy all theme files into htdocs/
+
+  rh import-themes
+
+=head1 DESCRIPTION
+
+This finds every Rhetoric::Theme on your system, and copies their static files
+to F<htdocs/>.
+
+=head1 OPTION
+
+=over 4
+
+=item --help, -h
+
+Display a help message.
+
+=back
+
+=head1 SEE ALSO
+
+L<rh>, L<rh-init>
+
+=cut
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab

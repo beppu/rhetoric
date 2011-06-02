@@ -85,8 +85,6 @@ Specify the hostname that the blog will be served from.
 
 L<rh>, L<rh-import-themes>, L<rh-psgi>
 
-=head1 AUTHOR
-
 =cut
 
 # Local Variables: ***

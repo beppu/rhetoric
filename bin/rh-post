@@ -15,6 +15,8 @@ GetOptions(
   'edit|e=s',
 );
 
+die "This script has not been implemented yet.\n";
+
 my $app  = do 'rhetoric.psgi';
 my $blog = Rhetoric::storage($Rhetoric::CONFIG{storage});
 #  $blog = blog(\%Rhetoric::CONFIG);
@@ -26,8 +28,8 @@ sub valid_post {
 }
 
 do {
-  system("$ENV{EDITOR} post.xml");
-} until (valid_post("post.xml"));
+  system("$ENV{EDITOR} post.yaml");
+} until (valid_post("post.yaml"));
 
 exit 0;
 
@@ -45,9 +47,6 @@ Usage:
 
 =head1 DESCRIPTION
 
-=head1 AUTHOR
-
-John BEPPU E<lt>beppu@cpan.orgE<gt>
 
 =cut
 
