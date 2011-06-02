@@ -399,6 +399,7 @@ our @V = (
       my $feed     = XML::Atom::Feed->new();
       my $hostname = $CONFIG{hostname};
       my $since    = $CONFIG{since};
+      $feed->title($v->title);
       $feed->id(sprintf('tag:%s,%d:feed-id', $hostname, $since));
       for my $post (@{ $v->posts }) {
         my $entry = XML::Atom::Entry->new();
