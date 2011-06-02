@@ -11,8 +11,13 @@ Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
   'help|h',
-  'config|c=s%',
 );
+
+if ($_{help}) {
+  require Pod::Usage;
+  Pod::Usage->import;
+  pod2usage(-verbose => 1);
+}
 
 # I would like to have some common code that finds
 # rhetoric.psgi in the current directory tree
@@ -59,15 +64,34 @@ rh-console - a REPL for introspecting Rhetoric blogs
 
 =head1 SYNOPSIS
 
+Go to a directory containing F<rhetoric.psgi> and start rh-console
+
   cd /var/www/myblog.org
   rh console
   Rhetoric> $blog
+  Rhetoric> \%CONFIG
+  Rhetoric> \%C
+  Rhetoric> \%V
+  Rhetoric> exit
 
 =head1 DESCRIPTION
 
+This starts up a REPL (or console) that let's you interact with a Rhetoric
+blog through it's various Perl APIs.
+
 =head1 OPTIONS
 
+=over 4
+
+=item --help, -h
+
+Display a help message.
+
+=back
+
 =head1 SEE ALSO
+
+L<rh>, L<Rhetoric::Storage::File>
 
 =head1 AUTHOR
 

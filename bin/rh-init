@@ -11,30 +11,33 @@ GetOptions(
   "hostname=s",
 );
 
+# --help
 if ($_{help}) {
   require Pod::Usage;
   Pod::Usage->import;
-  pod2usage();
+  pod2usage(-verbose => 1);
 }
 
 # --hostname is required
 if (not $_{hostname}) {
-  die "--hostname must be specified\n";
+  die 
+    "--hostname must be specified\n".
+    "run `rh init --help` for more info\n";
 }
 
 # setup the directory structure for blog data
-say "storage" unless $_{quiet};
+say '$blog->install' unless $_{quiet};
 my $blog = Rhetoric::storage('File');
 $blog->install;
 
 # extra commands
-my @commands = map { $_{quiet} ? "$_ > /dev/null" : $_ } (
+my @commands = map { $_{quiet} && $_ !~ /^rh psgi/ ? "$_ > /dev/null" : $_ } (
 
   # make a local copy of all themes
   "rh import-themes",
 
   # create rhetoric.psgi
-  "rh psgi --hostname='$_{hostname}'"
+  "rh psgi --hostname='$_{hostname}' > rhetoric.psgi"
 );
 
 # run the extra commands
@@ -70,7 +73,7 @@ Display help message
 
 =item --quiet, -q
 
-Don't print so much stuff
+Try to print as little as possible to STDOUT.
 
 =item --hostname=HOSTNAME
 

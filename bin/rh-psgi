@@ -10,18 +10,77 @@ GetOptions(
   \%_,
   "help|h",
   "quiet|q",
-  "output|o=s",
+  "hostname=s",
 );
+
+# --help
+if ($_{help}) {
+  require Pod::Usage;
+  Pod::Usage->import;
+  pod2usage(-verbose => 1);
+}
+
+# --hostname is required
+if (not $_{hostname}) {
+  die "--hostname must be specified\n";
+}
 
 my $tt     = Template->new({ POST_CHOMP => 1 });
 my $cwd    = getcwd;
 my $config = {
   base       => $cwd,
   theme_base => "$cwd/htdocs/theme",
-  hostname   => 'zzzzzzzz.rhetoric.al',
+  hostname   => $_{hostname},
   since      => (localtime)[5] + 1900,
 };
 $tt->process(\*DATA, $config);
+
+=head1 NAME
+
+rh-psgi - generate rhetoric.psgi
+
+=head1 SYNOPSIS
+
+Create rhetoric.psgi and run it with Starman
+
+  rh psgi --hostname=blog.mydomain.com > rhetoric.psgi
+  starman rhetoric.psgi
+
+=head1 DESCRIPTION
+
+The purpose of this script is to generate F<rhetoric.psgi> for you.
+
+After it's generated, you can run the blog using commands like
+C<plackup> or C<starman> which know what to do with L<PSGI> files.
+
+You may also edit F<rhetoric.psgi> to edit the blog's configuration.
+At the very least, please look at it if you've never seen it before.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help, -h
+
+Display a help message.
+
+=item --quiet, -q
+
+Make as little noise on STDOUT as possible.
+
+=item --hostname=HOSTNAME
+
+(REQUIRED) Set the hostname this blog should be hosted on.
+
+=back
+
+=head1 SEE ALSO
+
+L<rh>, L<rh-init>, L<starman>
+
+=head1 AUTHOR
+
+=cut
 
 __DATA__
 #!/usr/bin/env perl
@@ -60,3 +119,14 @@ builder {
     root => "[% base %]/htdocs";
   $app;
 };
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab
