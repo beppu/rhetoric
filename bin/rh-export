@@ -5,12 +5,24 @@ use Getopt::Long;
 use Data::Dump 'pp';
 use File::Path::Tiny;
 use File::Basename;
+
+# default value for output_dir
+$_{output} = "output";
+
 Getopt::Long::Configure('no_ignore_case');
 GetOptions(
   \%_,
   'help|h',
+  'relocate|r=s',
   'config|c=s%',
+  'output|o=s',
 );
+
+if ($_{help}) {
+  require Pod::Usage;
+  Pod::Usage->import;
+  pod2usage(-verbose => 1);
+}
 
 # mkpath
 *mk = \&File::Path::Tiny::mk;
@@ -28,7 +40,7 @@ for (keys %{$_{config}}) {
 }
 pp $C;
 
-Rhetoric->relocate($C->{relocate}) if ($C->{relocate});
+Rhetoric->relocate($_{relocate}) if ($_{relocate});
 Rhetoric->init;
 
 package Rhetoric::Controllers;
@@ -37,18 +49,16 @@ use File::Basename;
 
 *mk = \&File::Path::Tiny::mk;
 
-# evil
-my $output_dir = "output";
+my $output_dir = $_{output};
 mkdir($output_dir);
 
-# TODO - add archives when that controller is ready
-# TODO - add categories when that controller is ready
 my %replacement = (
   Home     => [ '/index.html', '/page/(\d+).html' ],
   Post     => [ '/(\d+)/(\d+)/([\w-]+).html' ],
   Category => [ '/category/(\w+).html' ],
   Archive  => [ '/archive/(\d+)/(\d+).html' ],
   Page     => [ '/(.*).html' ],
+  Feed     => [ '/feed.xml' ],
 );
 
 while (my ($controller, $urls) = each(%replacement)) {
@@ -56,7 +66,7 @@ while (my ($controller, $urls) = each(%replacement)) {
 }
 #pp \%Rhetoric::Controllers::C;
 
-# TODO - export pages for Home controller
+# export pages for Home controller
 my ($cc, $content) = Rhetoric->get('Home');
 my $blog = $cc->env->storage;
 my ($posts, $pager) = $blog->posts($C->{posts_per_page}, 1);
@@ -69,6 +79,10 @@ if ($last_page > 1) {
     $content > io($output_dir . R('Home', $page));
   }
 }
+
+# export file for Feed controller
+my ($cc, $content) = Rhetoric->get('Feed');
+$content > io($output_dir . R('Feed'));
 
 # export pages for Post controller
 ($posts, $pager) = $blog->posts(2 ** 31, 1);
@@ -110,3 +124,69 @@ system("rsync -a '$C->{'theme.base'}/' '$output_dir/theme/'");
 
 # tar it up
 system("tar czvf output.tgz output/") if ($C->{tar});
+
+__END__
+
+=head1 NAME
+
+rh-export - create a static export of a Rhetoric blog
+
+=head1 SYNOPSIS
+
+Create a static export of a Rhetoric blog
+
+  cd /var/www/blog.mydomain.com
+  rh export
+
+  cd output
+  ls -R
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help, -h
+
+Display a help message
+
+=item --relocate=REQUEST_PATH, -r
+
+If the static blog needs to live someplace other than '/',
+use this option to allow the blog to be served from another path.
+
+  rh export --relocate=/blog
+
+=item --config KEY=VALUE, -c
+
+This option lets you override certain values in %Rhetoric::CONFIG.
+You can repeat C<--config> as many times as you like on the command line
+to set more than one config variable.
+
+  rh export --config foo=1 --config bar=2
+
+=item --output=DIR, -o
+
+Set the directory to output the static files to.  It defaults to F<output>.
+
+  rh export --output=/var/www/static.mydomain.com
+
+=back
+
+=head1 SEE ALSO
+
+L<rh>
+
+=cut
+
+# Local Variables: ***
+# mode: cperl ***
+# indent-tabs-mode: nil ***
+# cperl-close-paren-offset: -2 ***
+# cperl-continued-statement-offset: 2 ***
+# cperl-indent-level: 2 ***
+# cperl-indent-parens-as-block: t ***
+# cperl-tab-always-indent: nil ***
+# End: ***
+# vim:tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab
