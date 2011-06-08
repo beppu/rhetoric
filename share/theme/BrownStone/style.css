@@ -279,6 +279,10 @@ a:hover {
   border-radius: 4px;
 }
 
+#comments div.author {
+  font-weight: bold;
+}
+
 .error {
   background-color: #FFCCEE;
 }

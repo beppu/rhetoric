@@ -13,9 +13,9 @@
               [% FOREACH comment = comments %]
               <li id="comment-[% comment.n %]">
                 [% IF comment.url %]
-                <div><a href="[% comment.url %]" rel="nofollow">[% comment.name %]</a> said:</div>
+                <div class="author"><a href="[% comment.url %]" rel="nofollow">[% comment.name %]</a> said:</div>
                 [% ELSE %]
-                <div>[% comment.name %] said:</div>
+                <div class="author">[% comment.name %] said:</div>
                 [% END %]
                 <div>
                   [% comment.body %]
