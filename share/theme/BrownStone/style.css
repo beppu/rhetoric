@@ -279,6 +279,10 @@ a:hover {
   border-radius: 4px;
 }
 
+.error {
+  background-color: #FFCCEE;
+}
+
 .links {
   padding-top: 20px;
   font-size: 12px;

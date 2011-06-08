@@ -306,12 +306,14 @@ our $storage = H->new({
       $post->year, $post->month,  $post->day,
       $post->hour, $post->minute, $post->second,
     );
+    my $n = 1;
     my @comment_files = sort glob("$post_path/comments/*");
     my @comments = map {
       my ($name,$email,$url,@body) = io($_)->slurp;
       chomp($name, $email, $url);
       my $body = join('', @body);
       H->new({
+        n     => $n++,
         name  => $name,
         email => $email,
         url   => $url,
@@ -324,12 +326,12 @@ our $storage = H->new({
   #
   new_comment => method($year, $month, $slug, $comment) {
     ref($comment) eq 'HASH' && H->bless($comment);
-    my @errors;
-    push @errors, ['name']  if (not $comment->name);
-    push @errors, ['email'] if (not $comment->email);
-    push @errors, ['body']  if (not $comment->body);
-    if (@errors) {
-      ouch('InvalidComment', \@errors);
+    my $errors = {};
+    $errors->{name}  = "Name is required"  if (not $comment->name);
+    $errors->{email} = "Email is required" if (not $comment->email);
+    $errors->{body}  = "Body is required"  if ($comment->body =~ /^\s*$/);
+    if (keys %$errors) {
+      ouch('InvalidComment', $errors);
     }
 
     my $post = $self->post($year, $month, $slug);
@@ -357,7 +359,9 @@ our $storage = H->new({
     io("$post_path/comments/$index") << $comment->email . "\n";
     io("$post_path/comments/$index") << $comment->url   . "\n";
     io("$post_path/comments/$index") << $body           . "\n";
+    my $n = $index; $n =~ s/^0*//;
     $comment->success(1);
+    $comment->n($n);
     $comment;
   },
 

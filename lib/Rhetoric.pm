@@ -4,6 +4,7 @@ use common::sense;
 use aliased 'Squatting::H';
 use Squatting;
 use Try::Tiny;
+use Data::Dump 'pp';
 
 use Rhetoric::Helpers ':all';
 use Rhetoric::Widgets;
@@ -101,7 +102,9 @@ sub service {
   for my $position ($s->widgets->positions) {
     $v->{widgets}{$position} = [ $s->widgets->content_for($position, $c, @args) ];
   }
-  $class->next::method($c, @args);
+  my $content = $class->next::method($c, @args);
+  warn pp($c->state);
+  $content;
 }
 
 # initialize app
@@ -266,11 +269,11 @@ our @C = (
       my $format  = $input->format // 'pod';
       my $storage = $self->env->storage;
       my $state   = $self->state;
-      warn pp $state;
 
-      $state->{name}    = $name;
-      $state->{email}   = $email;
-      $state->{url}     = $url;
+      warn $state->{name}  = $name;
+      warn $state->{email} = $email;
+      warn $state->{url}   = $url;
+      warn $state->{body}  = $body;
 
       my $result;
       try {
@@ -284,13 +287,20 @@ our @C = (
       }
       catch {
         if (kiss('InvalidComment'),  $_) {
+          warn "InvalidComment $_";
           $self->state->{errors} = $_->data;
         }
         else {
           warn $_;
         }
       };
-      $self->redirect(R('Post', $year, $month, $slug));
+      if ($result && $result->success) {
+        $state->{body} = undef;
+        my $n = $result->n;
+        $self->redirect(R('Post', $year, $month, $slug) . "#comment-$n");
+      } else {
+        $self->redirect(R('Post', $year, $month, $slug) . "#comment-form");
+      }
     }
   ),
 

@@ -11,7 +11,7 @@
           <div id="comments">
             <ol>
               [% FOREACH comment = comments %]
-              <li>
+              <li id="comment-[% comment.n %]">
                 [% IF comment.url %]
                 <div><a href="[% comment.url %]" rel="nofollow">[% comment.name %]</a> said:</div>
                 [% ELSE %]
@@ -29,14 +29,14 @@
               <input type="hidden" name="year"  value="[% post.year  %]" />
               <input type="hidden" name="month" value="[% post.month %]" />
               <input type="hidden" name="slug"  value="[% post.slug  %]" />
-              <h4>Name</h4>
-              <input type="text" name="name" value="[% state.name | html %]" size="32" />
-              <h4>Email</h4>
-              <input type="text" name="email" value="[% state.email | html %]" size="32" />
+              <h4>Name *</h4>
+              <input type="text" class="[% state.errors.name ? 'error' : '' %]" name="name" value="[% state.name | html %]" size="32" />
+              <h4>Email *</h4>
+              <input type="text" class="[% state.errors.email ? 'error' : '' %]" name="email" value="[% state.email | html %]" size="32" />
               <h4>URL</h4>
               <input type="text" name="url" value="[% state.url | html %]" size="32" />
-              <h4>Comment</h4>
-              <textarea name="body" rows="8" cols="40"></textarea>
+              <h4>Comment *</h4>
+              <textarea class="[% state.errors.body ? 'error' : '' %]" name="body" rows="8" cols="40">[% state.body | html %]</textarea>
               <div>
                 <select name="format">
                   <option value="pod">POD</option>
