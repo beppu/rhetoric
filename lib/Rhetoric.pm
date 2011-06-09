@@ -62,8 +62,8 @@ sub service {
   local %CONFIG = (%CONFIG, %new_config);
 
   # customize view for vhost
-  $c->view = $CONFIG{theme};
-  $Rhetoric::Views::V{$c->view}->_init( [ "$CONFIG{'base'}/pages", "$CONFIG{'theme.base'}/$name" ] );
+  my $vname = $c->view = $CONFIG{theme};
+  $Rhetoric::Views::V{$c->view}->_init( [ "$CONFIG{'base'}/pages", "$CONFIG{'theme.base'}/$vname" ] );
 
   my $v = $c->v;
   my $s = $c->env->{storage} = storage($CONFIG{storage});
