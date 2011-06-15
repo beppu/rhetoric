@@ -370,7 +370,12 @@ our $Page = C(
       $self->status = 404;
       return "GTFO";
     }
-    my $v = $self->v;
+    my $storage = $self->env->storage;
+    my $script  = sprintf('%s/pages/%s.pl', $storage->base, $path);
+    if (-e $script) {
+      my $sub = do $script;
+      $sub->($self, $path);
+    }
     $self->render($path);
   }
 );
