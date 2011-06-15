@@ -312,7 +312,9 @@ our $storage = H->new({
       my @stat = stat $_;
       my $dt   = DateTime->from_epoch(epoch => $stat[9]);
       my ($name,$email,$url,@body) = io($_)->slurp;
-      chomp $name, $email, $url;
+      chomp $name;
+      chomp $email;
+      chomp $url;
       my $body = join '', @body;
       H->new({
         n         => $n++,
