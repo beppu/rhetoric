@@ -309,15 +309,18 @@ our $storage = H->new({
     my $n = 1;
     my @comment_files = sort glob("$post_path/comments/*");
     my @comments = map {
+      my @stat = stat $_;
+      my $dt   = DateTime->from_epoch(epoch => $stat[9]);
       my ($name,$email,$url,@body) = io($_)->slurp;
-      chomp($name, $email, $url);
-      my $body = join('', @body);
+      chomp $name, $email, $url;
+      my $body = join '', @body;
       H->new({
-        n     => $n++,
-        name  => $name,
-        email => $email,
-        url   => $url,
-        body  => $body,
+        n         => $n++,
+        name      => $name,
+        email     => $email,
+        url       => $url,
+        body      => $body,
+        posted_on => $dt,
       });
     } @comment_files;
     \@comments;
