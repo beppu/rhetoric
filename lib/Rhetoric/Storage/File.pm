@@ -236,11 +236,13 @@ our $storage = H->new({
   category_posts => method($category) {
     my $root = $self->root;
 
-    my @category_posts = File::Find::Rule
-      ->file()
-      ->name('slug')
-      ->extras({ follow => 1 })
-      ->in("$root/categories/$category");
+    my @category_posts = reverse sort (
+      File::Find::Rule
+        ->file()
+        ->name('slug')
+        ->extras({ follow => 1 })
+        ->in("$root/categories/$category")
+    );
 
     my @posts = map {
       my @d       = (split('/', $_))[ -2 .. -1 ];    # d for directory
