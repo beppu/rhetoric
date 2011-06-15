@@ -4,7 +4,7 @@ use Eval::WithLexicals;
 use Term::ReadLine;
 use Rhetoric 'With::MockRequest';
 use Try::Tiny;
-use Data::Dump 'pp';
+use Data::Dump qw(pp dumpf);
 
 use Getopt::Long;
 Getopt::Long::Configure('no_ignore_case');
@@ -53,7 +53,19 @@ while (1) {
   if ($@) {
     @ret = ("Error!", $@);
   }
-  say pp(@ret);
+  say dumpf(@ret, sub {
+    my ($ctx, $object) = @_;
+    if ($ctx->object_isa('DateTime')) {
+      return {
+        dump => sprintf('DateTime->new(year => %d, month => %d, day => %d, hour => %d, minute => %d, second => %d)',
+          $object->year, $object->month,  $object->day,
+          $object->hour, $object->minute, $object->second
+        ),
+      };
+    } else {
+      return undef;
+    }
+  });
 }
 
 __END__
