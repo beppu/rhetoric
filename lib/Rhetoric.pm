@@ -104,7 +104,7 @@ sub service {
     $v->{widgets}{$position} = [ $s->widgets->content_for($position, $c, @args) ];
   }
   my $content = $class->next::method($c, @args);
-  warn pp($c->state);
+  #warn pp($c->state);
   $content;
 }
 
