@@ -40,7 +40,6 @@ share/pages/about.html
 share/pages/links.html
 share/pages/photos.html
 share/theme/BrownStone/_search.html
-share/theme/BrownStone/about.html
 share/theme/BrownStone/images/img01.jpg
 share/theme/BrownStone/images/img02.jpg
 share/theme/BrownStone/images/img03.jpg
@@ -50,7 +49,6 @@ share/theme/BrownStone/images/img06.jpg
 share/theme/BrownStone/index.html
 share/theme/BrownStone/layout.html
 share/theme/BrownStone/license.txt
-share/theme/BrownStone/links.html
 share/theme/BrownStone/new_post.html
 share/theme/BrownStone/post.html
 share/theme/BrownStone/style.css
